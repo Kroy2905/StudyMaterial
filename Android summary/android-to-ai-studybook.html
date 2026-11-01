@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Android Developer's Field Guide to AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f6f1e6;
+    --paper-alt: #eee6d5;
+    --ink: #2a2419;
+    --ink-dim: #6b6252;
+    --rule: #d8cdb4;
+    --burgundy: #8a3b3b;
+    --sage: #55705f;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #211c16;
+      --paper-alt: #2a231b;
+      --ink: #ece3d1;
+      --ink-dim: #a89a80;
+      --rule: #453a2c;
+      --burgundy: #d98c8c;
+      --sage: #8fb09e;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #211c16; --paper-alt: #2a231b; --ink: #ece3d1; --ink-dim: #a89a80; --rule: #453a2c; --burgundy: #d98c8c; --sage: #8fb09e;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.65;
+  }
+  h1, h2, h3, .display { font-family: 'Fraunces', Georgia, serif; color: var(--ink); margin: 0; }
+  svg { display:block; max-width:100%; height:auto; color: var(--ink); }
+  .stroke-a { stroke: var(--ink); }
+  .stroke-b { stroke: var(--burgundy); }
+  .stroke-c { stroke: var(--sage); }
+  a { color: var(--burgundy); }
+
+  /* ribbon bookmark showing current chapter */
+  .ribbon {
+    position: fixed;
+    top: env(safe-area-inset-top, 0px);
+    right: 22px;
+    background: var(--burgundy);
+    color: var(--paper);
+    font-family: 'Fraunces', serif;
+    font-size: 0.78rem;
+    padding: 10px 14px 16px;
+    border-radius: 0 0 4px 4px;
+    z-index: 40;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%);
+    min-width: 120px;
+    text-align: center;
+  }
+
+  .page {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 26px;
+  }
+
+  /* cover */
+  .cover {
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px 26px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .cover .eyebrow { font-family:'Fraunces',serif; font-style: italic; color: var(--ink-dim); font-size: 1rem; margin-bottom: 22px; }
+  .cover h1 { font-size: clamp(2.1rem, 7vw, 3.6rem); font-weight: 500; max-width: 15ch; line-height: 1.12; }
+  .cover .rule { width: 70px; height: 2px; background: var(--burgundy); margin: 26px 0; }
+  .cover .subtitle { max-width: 42ch; color: var(--ink-dim); font-size: 1.05rem; font-style: italic; }
+  .cover .byline { margin-top: 40px; font-size: 0.85rem; color: var(--ink-dim); letter-spacing: 0.04em; }
+
+  /* table of contents */
+  .toc { padding: 80px 0 70px; border-bottom: 1px solid var(--rule); }
+  .toc h2 { font-size: 1.6rem; font-weight: 500; margin-bottom: 34px; text-align:center; }
+  .toc ol { list-style: none; margin: 0; padding: 0; counter-reset: chnum; }
+  .toc li { counter-increment: chnum; }
+  .toc a {
+    display: flex; align-items: baseline; gap: 8px;
+    text-decoration: none; color: var(--ink);
+    padding: 9px 0;
+    border-bottom: 1px dotted var(--rule);
+  }
+  .toc a .cnum { font-family:'Fraunces',serif; color: var(--burgundy); font-size: 0.85rem; min-width: 24px; }
+  .toc a .ctitle { flex: 1; }
+  .toc a .leader { flex: 1; border-bottom: 1px dotted var(--rule); margin: 0 6px 4px; }
+  .toc a:hover .ctitle { color: var(--burgundy); }
+
+  /* chapters */
+  .chapter { padding: 78px 0 20px; border-bottom: 1px solid var(--rule); scroll-margin-top: 20px; }
+  .chapter:last-of-type { border-bottom: none; }
+  .chapter-head { text-align:center; margin-bottom: 46px; }
+  .chapter-head .num { font-family:'Fraunces',serif; font-size: 4.2rem; color: var(--burgundy); line-height: 1; font-weight: 400; font-style: italic;}
+  .chapter-head h2 { font-size: 1.9rem; font-weight: 500; margin-top: 6px; }
+  .chapter-head .tagline { color: var(--ink-dim); font-style: italic; margin-top: 10px; font-size: 1rem; }
+
+  .figure { margin: 34px 0; text-align: center; }
+  .figure .cap { font-size: 0.85rem; color: var(--ink-dim); font-style: italic; margin-top: 10px; }
+
+  p { margin: 0 0 20px; }
+  .chapter > .page > p:first-of-type::first-letter {
+    font-family: 'Fraunces', serif;
+    font-size: 3.4rem;
+    float: left;
+    line-height: 0.8;
+    padding: 6px 8px 0 0;
+    color: var(--burgundy);
+    font-weight: 500;
+  }
+
+  .terms { margin: 26px 0; padding: 0; list-style: none; }
+  .terms li { padding: 10px 0 10px 20px; border-left: 2px solid var(--rule); margin-bottom: 8px; }
+  .terms li strong { font-family:'Fraunces',serif; font-weight:500; color: var(--ink); }
+  .terms li span { color: var(--ink-dim); }
+
+  .marginnote {
+    background: var(--paper-alt);
+    border-left: 3px solid var(--sage);
+    padding: 14px 18px;
+    margin: 26px 0;
+    font-size: 0.92rem;
+    border-radius: 0 6px 6px 0;
+  }
+  .marginnote .lbl { display:block; font-family:'Fraunces',serif; font-style:italic; color: var(--sage); font-size:0.82rem; margin-bottom: 4px; }
+
+  /* appendix / closing */
+  .appendix { padding: 70px 0; border-bottom: 1px solid var(--rule); }
+  .appendix h2 { text-align:center; font-size: 1.5rem; font-weight:500; margin-bottom: 30px; }
+  .skiplist { list-style:none; padding:0; margin:0; }
+  .skiplist li { padding: 11px 0; border-bottom: 1px dotted var(--rule); color: var(--ink-dim); }
+  .skiplist li::before { content: "—"; color: var(--burgundy); margin-right: 10px; }
+
+  .priority-list { list-style:none; padding:0; margin:0; }
+  .priority-list li { display:flex; justify-content:space-between; padding: 11px 0; border-bottom: 1px dotted var(--rule); }
+  .priority-list .stars { color: var(--burgundy); font-family:'Fraunces',serif; letter-spacing: 2px; }
+
+  .backcover {
+    min-height: 60vh;
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    text-align:center; padding: 80px 26px;
+  }
+  .backcover h2 { font-size: 1.7rem; font-weight:500; max-width: 22ch; line-height: 1.35; }
+  .backcover h2 em { color: var(--burgundy); font-style: normal; }
+  .backcover p { max-width: 44ch; color: var(--ink-dim); margin-top: 18px; }
+
+  @media (max-width: 560px) {
+    body { font-size: 17px; }
+    .chapter { padding: 56px 0 10px; }
+    .ribbon { right: 12px; font-size: 0.7rem; padding: 8px 10px 12px; min-width: 96px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ribbon" id="ribbon">Contents</div>
+
+<!-- COVER -->
+<section class="cover">
+  <div class="eyebrow">a field guide, in ten chapters</div>
+  <h1>The Android Developer's<br>Field Guide to AI</h1>
+  <div class="rule"></div>
+  <p class="subtitle">You already know how to ship mobile software. This book is about the second half of the skill: taking a model — an API call or a file on disk — all the way into a production app.</p>
+  <div class="byline">based on your roadmap notes</div>
+</section>
+
+<!-- TOC -->
+<section class="toc page">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#ch1"><span class="cnum">I</span><span class="ctitle">AI Fundamentals</span></a></li>
+    <li><a href="#ch2"><span class="cnum">II</span><span class="ctitle">Large Language Models</span></a></li>
+    <li><a href="#ch3"><span class="cnum">III</span><span class="ctitle">AI APIs</span></a></li>
+    <li><a href="#ch4"><span class="cnum">IV</span><span class="ctitle">Retrieval-Augmented Generation</span></a></li>
+    <li><a href="#ch5"><span class="cnum">V</span><span class="ctitle">On-Device AI</span></a></li>
+    <li><a href="#ch6"><span class="cnum">VI</span><span class="ctitle">Computer Vision</span></a></li>
+    <li><a href="#ch7"><span class="cnum">VII</span><span class="ctitle">Learning Python</span></a></li>
+    <li><a href="#ch8"><span class="cnum">VIII</span><span class="ctitle">PyTorch Basics</span></a></li>
+    <li><a href="#ch9"><span class="cnum">IX</span><span class="ctitle">AI Agents</span></a></li>
+    <li><a href="#ch10"><span class="cnum">X</span><span class="ctitle">AI App Architecture</span></a></li>
+    <li><a href="#appendix1"><span class="cnum">–</span><span class="ctitle">What to Skip</span></a></li>
+    <li><a href="#appendix2"><span class="cnum">–</span><span class="ctitle">Priority Order</span></a></li>
+    <li><a href="#closing"><span class="cnum">–</span><span class="ctitle">The Target Profile</span></a></li>
+  </ol>
+</section>
+
+<!-- CHAPTER I -->
+<section class="chapter" id="ch1">
+  <div class="chapter-head">
+    <div class="num">I</div>
+    <h2>AI Fundamentals</h2>
+    <div class="tagline">the vocabulary everything else is built on</div>
+  </div>
+  <div class="page">
+    <p>Artificial intelligence, machine learning, and deep learning are often used as if they meant the same thing. They don't — they nest inside one another, each one a narrower way of solving the same broad problem.</p>
+
+    <div class="figure">
+      <svg viewBox="0 0 480 220" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="240" cy="115" r="95" fill="none" class="stroke-a" stroke-width="1.4"/>
+        <circle cx="255" cy="125" r="66" fill="none" class="stroke-c" stroke-width="1.4"/>
+        <circle cx="268" cy="135" r="36" fill="none" class="stroke-b" stroke-width="1.6"/>
+        <circle cx="268" cy="135" r="3" class="stroke-b" fill="currentColor"/>
+        <circle cx="258" cy="122" r="2.4" class="stroke-b" fill="currentColor"/>
+        <circle cx="280" cy="120" r="2.4" class="stroke-b" fill="currentColor"/>
+        <circle cx="280" cy="148" r="2.4" class="stroke-b" fill="currentColor"/>
+        <line x1="268" y1="135" x2="258" y2="122" stroke="currentColor" stroke-width="0.8" opacity="0.6"/>
+        <line x1="268" y1="135" x2="280" y2="120" stroke="currentColor" stroke-width="0.8" opacity="0.6"/>
+        <line x1="268" y1="135" x2="280" y2="148" stroke="currentColor" stroke-width="0.8" opacity="0.6"/>
+        <text x="100" y="45" font-family="Fraunces, serif" font-size="15" fill="currentColor">Artificial Intelligence</text>
+        <text x="330" y="75" font-family="Fraunces, serif" font-size="14" fill="currentColor">Machine Learning</text>
+        <text x="300" y="195" font-family="Fraunces, serif" font-size="13" fill="currentColor">Deep Learning</text>
+      </svg>
+      <div class="cap">Fig. 1 — each field is a narrower approach nested inside the one before it</div>
+    </div>
+
+    <p>Inside deep learning, a <strong>neural network</strong> is just layers of simple math units, each one combining its inputs and passing a signal forward, that together approximate very complicated functions. A <strong>CNN</strong> is a neural network shaped specifically for images — it slides small filters across a picture to detect edges, textures, and shapes, which is exactly why it matters for your camera work. A <strong>transformer</strong> is the architecture behind every modern LLM, and you'll meet it properly in the next chapter.</p>
+
+    <ul class="terms">
+      <li><strong>Supervised vs. unsupervised</strong> — <span>supervised learning trains on labeled examples ("this photo is a cat"); unsupervised learning finds structure with no labels at all.</span></li>
+      <li><strong>Classification vs. regression</strong> — <span>classification picks a category; regression predicts a number.</span></li>
+      <li><strong>Training vs. inference</strong> — <span>training is when the model learns from data; inference is when it's put to work making predictions.</span></li>
+      <li><strong>Overfitting / underfitting</strong> — <span>a model that memorized its training data instead of the pattern, versus one that never learned the pattern well enough.</span></li>
+      <li><strong>Accuracy, precision, recall, F1</strong> — <span>different lenses for scoring a model — how often it's right, how trustworthy its "yes" is, how many real cases it catches, and a balance of the two.</span></li>
+      <li><strong>Embeddings</strong> — <span>turning text, images, or anything else into a list of numbers where similar meanings end up numerically close together.</span></li>
+      <li><strong>Tokens & context window</strong> — <span>tokens are the chunks text is split into; the context window is how many tokens a model can see at once.</span></li>
+      <li><strong>Quantization</strong> — <span>shrinking a model's numbers to fewer bits so it runs faster and lighter — the difference between a model that fits on a phone and one that doesn't.</span></li>
+    </ul>
+
+    <div class="marginnote"><span class="lbl">in the margin</span>You don't need to derive backpropagation by hand unless you're aiming specifically at an ML-research role. Know what each term means and when it matters — that's enough to be dangerous.</div>
+  </div>
+</section>
+
+<!-- CHAPTER II -->
+<section class="chapter" id="ch2">
+  <div class="chapter-head">
+    <div class="num">II</div>
+    <h2>Large Language Models</h2>
+    <div class="tagline">the single biggest addition to your toolkit</div>
+  </div>
+  <div class="page">
+    <p>A transformer's defining trick is <strong>attention</strong>: instead of reading a sentence one word at a time in isolation, it looks at every word against every other word and learns how much each one should influence the rest. That's how a model figures out that "it" refers back to "the phone," three words earlier.</p>
+
+    <div class="figure">
+      <svg viewBox="0 0 480 190" xmlns="http://www.w3.org/2000/svg">
+        <g font-family="Source Serif 4, serif" font-size="13" fill="currentColor">
+          <rect x="20" y="140" width="70" height="30" rx="4" fill="none" class="stroke-a" stroke-width="1.2"/>
+          <text x="34" y="160">"Book"</text>
+          <rect x="115" y="140" width="60" height="30" rx="4" fill="none" class="stroke-a" stroke-width="1.2"/>
+          <text x="130" y="160">"me"</text>
+          <rect x="200" y="140" width="60" height="30" rx="4" fill="none" class="stroke-a" stroke-width="1.2"/>
+          <text x="215" y="160">"a"</text>
+          <rect x="285" y="140" width="80" height="30" rx="4" fill="none" class="stroke-a" stroke-width="1.2"/>
+          <text x="298" y="160">"lane"</text>
+          <rect x="390" y="140" width="80" height="30" rx="4" fill="none" class="stroke-a" stroke-width="1.2"/>
+          <text x="403" y="160">"tomorrow"</text>
+        </g>
+        <path d="M55,140 C120,60 300,60 325,140" fill="none" class="stroke-b" stroke-width="1.1" opacity="0.85"/>
+        <path d="M55,140 C150,40 350,40 430,140" fill="none" class="stroke-b" stroke-width="0.8" opacity="0.4"/>
+        <path d="M235,140 C250,90 300,90 320,140" fill="none" class="stroke-c" stroke-width="1.2" opacity="0.8"/>
+        <path d="M330,140 C370,80 400,80 425,140" fill="none" class="stroke-c" stroke-width="0.9" opacity="0.5"/>
+      </svg>
+      <div class="cap">Fig. 2 — self-attention: every token weighing every other token</div>
+    </div>
+
+    <p>Everything you do with an LLM is a way of shaping that machinery. A <strong>system message</strong> sets its behavior and rules for the whole conversation; <strong>user messages</strong> are the actual back-and-forth. <strong>Temperature</strong> controls how safe or adventurous its word choices are. <strong>Streaming</strong> sends tokens back as they're generated, so your UI can display text as it arrives instead of waiting for the whole reply.</p>
+
+    <p>Two capabilities turn a chatbot into a real product feature:</p>
+    <ul class="terms">
+      <li><strong>Structured JSON output</strong> — <span>the model replies in a fixed schema your app can parse directly, not a paragraph you have to guess at.</span></li>
+      <li><strong>Function / tool calling</strong> — <span>the model can choose to call a function you've defined, see the result, and keep working — the basis of everything in Chapter IX.</span></li>
+      <li><strong>RAG</strong> — <span>giving the model retrieved facts before it answers, rather than trusting only what it memorized during training. Full chapter ahead.</span></li>
+      <li><strong>Hallucination</strong> — <span>when the model states something false with total confidence — the reason guardrails and evaluation exist.</span></li>
+    </ul>
+
+    <div class="marginnote"><span class="lbl">the shape you're building toward</span>Android → backend → LLM → tools/database → response → Android UI. And later, the same shape running entirely on the phone: Android → on-device model → inference → UI.</div>
+  </div>
+</section>
+
+<!-- CHAPTER III -->
+<section class="chapter" id="ch3">
+  <div class="chapter-head">
+    <div class="num">III</div>
+    <h2>AI APIs</h2>
+    <div class="tagline">just another backend integration</div>
+  </div>
+  <div class="page">
+    <p>OpenAI, Gemini, Anthropic, Azure AI, Bedrock, Hugging Face — the providers differ in pricing and personality, but the shape of the integration is nearly identical everywhere. Learn one deeply and the rest come cheap.</p>
+
+    <div class="figure">
+      <svg viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg">
+        <rect x="30" y="80" width="90" height="46" rx="6" fill="none" class="stroke-a" stroke-width="1.3"/>
+        <text x="45" y="107" font-family="Fraunces, serif" font-size="13" fill="currentColor">Android</text>
+        <ellipse cx="240" cy="55" rx="60" ry="26" fill="none" class="stroke-c" stroke-width="1.2"/>
+        <ellipse cx="200" cy="45" rx="34" ry="18" fill="none" class="stroke-c" stroke-width="1.2"/>
+        <ellipse cx="280" cy="45" rx="34" ry="18" fill="none" class="stroke-c" stroke-width="1.2"/>
+        <text x="205" y="60" font-family="Fraunces, serif" font-size="12" fill="currentColor">AI Provider</text>
+        <rect x="200" y="80" width="90" height="46" rx="6" fill="none" class="stroke-a" stroke-width="1.3"/>
+        <text x="212" y="107" font-family="Fraunces, serif" font-size="13" fill="currentColor">Backend</text>
+        <rect x="370" y="80" width="90" height="46" rx="6" fill="none" class="stroke-a" stroke-width="1.3"/>
+        <text x="378" y="107" font-family="Fraunces, serif" font-size="12" fill="currentColor">Structured JSON</text>
+        <path d="M120,100 H196" class="stroke-b" stroke-width="1.4" marker-end="url(#arrow3)"/>
+        <path d="M290,100 H366" class="stroke-b" stroke-width="1.4" marker-end="url(#arrow3)"/>
+        <path d="M245,80 V70" class="stroke-b" stroke-width="1.4" marker-end="url(#arrow3)"/>
+        <g transform="translate(158,140)">
+          <rect x="0" y="6" width="18" height="14" rx="2" fill="none" class="stroke-b" stroke-width="1.3"/>
+          <path d="M3,6 V0 a6,6 0 0 1 12,0 V6" fill="none" class="stroke-b" stroke-width="1.3"/>
+        </g>
+        <text x="128" y="182" font-family="Source Serif 4, serif" font-style="italic" font-size="12" fill="currentColor">secrets stay behind the backend</text>
+        <defs><marker id="arrow3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="currentColor"/></marker></defs>
+      </svg>
+      <div class="cap">Fig. 3 — the lock sits between your app and the provider, not inside the APK</div>
+    </div>
+
+    <p>The Android-side chain is: <em>Android → Repository → API client → Backend → AI model → Structured response → Android UI</em>. The one rule that matters more than any provider-specific detail: never put an API key directly inside the APK. Anyone can decompile it and pull the key out — the backend hop exists precisely to keep secrets off the device.</p>
+  </div>
+</section>
+
+<!-- CHAPTER IV -->
+<section class="chapter" id="ch4">
+  <div class="chapter-head">
+    <div class="num">IV</div>
+    <h2>Retrieval-Augmented Generation</h2>
+    <div class="tagline">give the model something to look up before it answers</div>
+  </div>
+  <div class="page">
+    <p>An LLM only knows what it learned during training. RAG hands it fresh, specific material at the moment of answering — closer to giving someone an open book than expecting them to recite from memory.</p>
+
+    <div class="figure">
+      <svg viewBox="0 0 480 210" xmlns="http://www.w3.org/2000/svg">
+        <g class="stroke-a" stroke-width="1.2" fill="none">
+          <rect x="10" y="70" width="34" height="44" rx="2"/>
+          <rect x="16" y="64" width="34" height="44" rx="2"/>
+        </g>
+        <text x="6" y="130" font-family="Source Serif 4, serif" font-size="11" fill="currentColor">documents</text>
+        <path d="M60,86 H100" class="stroke-b" marker-end="url(#a4)"/>
+        <g class="stroke-c" stroke-width="1.1" fill="none">
+          <rect x="108" y="70" width="14" height="14"/>
+          <rect x="126" y="70" width="14" height="14"/>
+          <rect x="108" y="88" width="14" height="14"/>
+          <rect x="126" y="88" width="14" height="14"/>
+        </g>
+        <text x="104" y="120" font-family="Source Serif 4, serif" font-size="11" fill="currentColor">chunks</text>
+        <path d="M152,86 H192" class="stroke-b" marker-end="url(#a4)"/>
+        <circle cx="230" cy="60" r="2.6" class="stroke-b" fill="currentColor"/>
+        <circle cx="245" cy="80" r="2.6" class="stroke-b" fill="currentColor"/>
+        <circle cx="215" cy="90" r="2.6" fill="currentColor" opacity="0.4"/>
+        <circle cx="255" cy="55" r="2.6" fill="currentColor" opacity="0.4"/>
+        <circle cx="225" cy="70" r="4" class="stroke-b" fill="none" stroke-width="1.4"/>
+        <text x="196" y="120" font-family="Source Serif 4, serif" font-size="11" fill="currentColor">vector space</text>
+        <path d="M262,86 H300" class="stroke-b" marker-end="url(#a4)"/>
+        <circle cx="320" cy="80" r="10" fill="none" class="stroke-a" stroke-width="1.3"/>
+        <line x1="327" y1="88" x2="336" y2="97" class="stroke-a" stroke-width="1.3"/>
+        <text x="302" y="120" font-family="Source Serif 4, serif" font-size="11" fill="currentColor">retrieval</text>
+        <path d="M345,86 H385" class="stroke-b" marker-end="url(#a4)"/>
+        <rect x="392" y="64" width="70" height="44" rx="6" fill="none" class="stroke-a" stroke-width="1.3"/>
+        <text x="405" y="90" font-family="Fraunces, serif" font-size="13" fill="currentColor">LLM</text>
+        <path d="M427,108 V150" class="stroke-c" stroke-width="1.3" marker-end="url(#a4)"/>
+        <path d="M50,150 C150,190 320,190 420,150" fill="none" class="stroke-c" stroke-width="0.9" opacity="0.6"/>
+        <text x="170" y="180" font-family="Source Serif 4, serif" font-style="italic" font-size="12" fill="currentColor">relevant context feeds back into the prompt</text>
+        <defs><marker id="a4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="currentColor"/></marker></defs>
+      </svg>
+      <div class="cap">Fig. 4 — documents become searchable meaning, then become an answer</div>
+    </div>
+
+    <p>Documents are split into <strong>chunks</strong> small enough to search precisely. Each chunk becomes an <strong>embedding</strong> and lands in a <strong>vector database</strong>. When a question comes in, a similarity search pulls the most relevant chunks and inserts them into the prompt as context — the LLM then answers using material it's actually holding, not just recalling.</p>
+
+    <div class="marginnote"><span class="lbl">the one project to build</span>An Android app that answers questions about the user's own PDFs. It's a single project, but it forces you through embeddings, vector search, retrieval, prompting, context management, LLM APIs, streaming, and backend integration all at once.</div>
+  </div>
+</section>
+
+<!-- CHAPTER V -->
+<section class="chapter" id="ch5">
+  <div class="chapter-head">
+    <div class="num">V</div>
+    <h2>On-Device AI</h2>
+    <div class="tagline">where your Android background becomes an advantage</div>
+  </div>
+  <div class="page">
+    <p>Two ladders exist here. The bottom rung is <strong>ML Kit</strong> — Google's pre-built, no-training-required capabilities: OCR, face detection, barcode scanning, image labeling, pose detection, document scanning. You drop them in and get results.</p>
+
+    <p>The rung above is running your own model on the phone with <strong>LiteRT / TensorFlow Lite</strong>.</p>
+
+    <div class="figure">
+      <svg viewBox="0 0 420 220" xmlns="http://www.w3.org/2000/svg">
+        <rect x="140" y="10" width="140" height="200" rx="18" fill="none" class="stroke-a" stroke-width="1.6"/>
+        <rect x="152" y="30" width="116" height="150" rx="4" fill="none" class="stroke-a" stroke-width="1"/>
+        <rect x="180" y="70" width="60" height="60" fill="none" class="stroke-b" stroke-width="1.3"/>
+        <line x1="188" y1="78" x2="232" y2="78" class="stroke-b" stroke-width="0.8"/>
+        <line x1="188" y1="90" x2="232" y2="90" class="stroke-b" stroke-width="0.8"/>
+        <line x1="188" y1="102" x2="232" y2="102" class="stroke-b" stroke-width="0.8"/>
+        <line x1="188" y1="114" x2="232" y2="114" class="stroke-b" stroke-width="0.8"/>
+        <text x="184" y="152" font-family="Fraunces, serif" font-style="italic" font-size="11" fill="currentColor">.tflite</text>
+        <text x="35" y="60" font-family="Source Serif 4, serif" font-size="12" fill="currentColor">CPU</text>
+        <text x="35" y="110" font-family="Source Serif 4, serif" font-size="12" fill="currentColor">GPU</text>
+        <text x="35" y="160" font-family="Source Serif 4, serif" font-size="12" fill="currentColor">NPU</text>
+        <path d="M60,55 C110,55 130,70 150,85" fill="none" class="stroke-c" stroke-width="1" opacity="0.7"/>
+        <path d="M60,105 C110,105 130,100 150,100" fill="none" class="stroke-c" stroke-width="1" opacity="0.7"/>
+        <path d="M60,155 C110,155 130,130 150,115" fill="none" class="stroke-c" stroke-width="1" opacity="0.7"/>
+        <text x="290" y="90" font-family="Source Serif 4, serif" font-size="12" fill="currentColor">smaller,</text>
+        <text x="290" y="106" font-family="Source Serif 4, serif" font-size="12" fill="currentColor">faster —</text>
+        <text x="290" y="122" font-family="Source Serif 4, serif" font-size="12" fill="currentColor">quantized</text>
+      </svg>
+      <div class="cap">Fig. 5 — a model compressed onto a phone, choosing its fastest hardware path</div>
+    </div>
+
+    <p>The vocabulary to know: loading a <strong>.tflite</strong> model, feeding it <strong>tensors</strong>, the pre- and post-processing that converts a camera frame into what the model expects and its output back into something usable, <strong>quantization</strong> to shrink it, and choosing between CPU, GPU, and NPU acceleration. Two numbers you'll obsess over: <strong>latency</strong> and <strong>memory</strong>. <strong>ONNX Runtime Mobile</strong> is worth knowing as the other major runtime in this space.</p>
+  </div>
+</section>
+
+<!-- CHAPTER VI -->
+<section class="chapter" id="ch6">
+  <div class="chapter-head">
+    <div class="num">VI</div>
+    <h2>Computer Vision</h2>
+    <div class="tagline">your camera experience, pointed at models</div>
+  </div>
+  <div class="page">
+    <p>Every computer-vision feature on Android runs through the same relay: a camera frame comes in, gets prepared for the model, gets interpreted, and the result gets drawn back onto the screen.</p>
+
+    <div class="figure">
+      <svg viewBox="0 0 460 200" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="40" width="120" height="90" rx="6" fill="none" class="stroke-a" stroke-width="1.3"/>
+        <circle cx="80" cy="60" r="6" fill="none" class="stroke-a" stroke-width="1.1"/>
+        <rect x="55" y="80" width="50" height="40" fill="none" class="stroke-b" stroke-width="1.4" stroke-dasharray="4 3"/>
+        <circle cx="80" cy="95" r="6" class="stroke-c" fill="none" stroke-width="1.2"/>
+        <line x1="80" y1="101" x2="80" y2="115" class="stroke-c" stroke-width="1.2"/>
+        <line x1="80" y1="107" x2="68" y2="118" class="stroke-c" stroke-width="1.2"/>
+        <line x1="80" y1="107" x2="92" y2="118" class="stroke-c" stroke-width="1.2"/>
+        <text x="35" y="150" font-family="Source Serif 4, serif" font-size="11" fill="currentColor">camera frame</text>
+        <path d="M148,85 H190" class="stroke-b" marker-end="url(#a6)"/>
+        <text x="150" y="105" font-family="Source Serif 4, serif" font-size="10" fill="currentColor" opacity="0.8">pre-process</text>
+        <rect x="196" y="55" width="70" height="60" rx="6" fill="none" class="stroke-a" stroke-width="1.3"/>
+        <text x="206" y="90" font-family="Fraunces, serif" font-size="12" fill="currentColor">model</text>
+        <path d="M274,85 H316" class="stroke-b" marker-end="url(#a6)"/>
+        <text x="278" y="105" font-family="Source Serif 4, serif" font-size="10" fill="currentColor" opacity="0.8">post-process</text>
+        <rect x="322" y="40" width="118" height="90" rx="6" fill="none" class="stroke-a" stroke-width="1.3"/>
+        <rect x="350" y="70" width="46" height="40" fill="none" class="stroke-b" stroke-width="1.4"/>
+        <text x="352" y="65" font-family="Source Serif 4, serif" font-size="10" fill="currentColor">92%</text>
+        <text x="336" y="150" font-family="Source Serif 4, serif" font-size="11" fill="currentColor">overlay / UI</text>
+        <defs><marker id="a6" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="currentColor"/></marker></defs>
+      </svg>
+      <div class="cap">Fig. 6 — the same relay, whether it's a bounding box or a skeleton</div>
+    </div>
+
+    <p>The vocabulary spans image classification, object detection, segmentation, pose estimation, OCR, tracking, and image embeddings — with <strong>OpenCV</strong> as the classic toolbox underneath much of it. On Android specifically, this all runs through <strong>CameraX</strong>'s <code>ImageAnalysis</code> pipeline, which is exactly the plumbing your existing camera experience already speaks.</p>
+  </div>
+</section>
+
+<!-- CHAPTER VII -->
+<section class="chapter" id="ch7">
+  <div class="chapter-head">
+    <div class="num">VII</div>
+    <h2>Learning Python</h2>
+    <div class="tagline">a second language for a different job, not a career change</div>
+  </div>
+  <div class="page">
+    <p>You're not becoming a Python developer. You're gaining just enough fluency — <strong>NumPy</strong> for numerical arrays, <strong>Pandas</strong> for tables of data, <strong>Matplotlib</strong> for plots, <strong>PyTorch</strong> for models, <strong>Jupyter</strong> for quick experiments — to read and adjust the ML code that a data scientist or a paper hands you.</p>
+
+    <div class="figure">
+      <svg viewBox="0 0 460 170" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20,140 C120,60 180,60 240,90" fill="none" class="stroke-c" stroke-width="1.6"/>
+        <path d="M20,140 C120,150 200,150 240,110" fill="none" class="stroke-b" stroke-width="1.6"/>
+        <circle cx="240" cy="100" r="26" fill="none" class="stroke-a" stroke-width="1.4"/>
+        <text x="218" y="104" font-family="Fraunces, serif" font-size="11" fill="currentColor">shipped</text>
+        <text x="220" y="118" font-family="Fraunces, serif" font-size="11" fill="currentColor">app</text>
+        <text x="24" y="60" font-family="Source Serif 4, serif" font-size="12" fill="currentColor">Python — experiment</text>
+        <text x="24" y="165" font-family="Source Serif 4, serif" font-size="12" fill="currentColor">Kotlin — production</text>
+      </svg>
+      <div class="cap">Fig. 7 — two lanes, one destination</div>
+    </div>
+
+    <p>Think of Python as the lab and Kotlin as the factory floor. Ideas get tried quickly in Python notebooks; what survives gets exported and shipped through Kotlin. Neither replaces the other.</p>
+  </div>
+</section>
+
+<!-- CHAPTER VIII -->
+<section class="chapter" id="ch8">
+  <div class="chapter-head">
+    <div class="num">VIII</div>
+    <h2>PyTorch Basics</h2>
+    <div class="tagline">the shape of a training run, not a research career</div>
+  </div>
+  <div class="page">
+    <p>Every training run follows the same loop: examples go in, the model guesses, a <strong>loss</strong> function scores how wrong the guess was, an <strong>optimizer</strong> nudges the model's numbers to do better next time, and the cycle repeats until performance on held-out <strong>validation</strong> data stops improving.</p>
+
+    <div class="figure">
+      <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="150" cy="150" r="100" fill="none" class="stroke-a" stroke-width="1.2" stroke-dasharray="2 6"/>
+        <g font-family="Fraunces, serif" font-size="13" fill="currentColor">
+          <text x="115" y="45">Data</text>
+          <text x="225" y="120">Model</text>
+          <text x="200" y="240">Loss</text>
+          <text x="80" y="240">Optimizer</text>
+        </g>
+        <path d="M150,50 A100,100 0 0,1 236,110" fill="none" class="stroke-b" stroke-width="1.4" marker-end="url(#a8)"/>
+        <path d="M236,190 A100,100 0 0,1 190,255" fill="none" class="stroke-b" stroke-width="1.4" marker-end="url(#a8)"/>
+        <path d="M110,255 A100,100 0 0,1 64,190" fill="none" class="stroke-b" stroke-width="1.4" marker-end="url(#a8)"/>
+        <path d="M64,110 A100,100 0 0,1 110,45" fill="none" class="stroke-b" stroke-width="1.4" marker-end="url(#a8)"/>
+        <circle cx="150" cy="150" r="3" fill="currentColor"/>
+        <text x="118" y="153" font-family="Source Serif 4, serif" font-style="italic" font-size="11" fill="currentColor">train</text>
+        <defs><marker id="a8" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="currentColor"/></marker></defs>
+      </svg>
+      <div class="cap">Fig. 8 — the training loop, going round until it's good enough</div>
+    </div>
+
+    <p>Once it's good enough, the model takes one more trip: <em>PyTorch model → export/convert → mobile-compatible model → Android → inference</em>. That last step — getting a trained model onto a phone — is worth more to your career than knowing how to train an enormous one from scratch.</p>
+  </div>
+</section>
+
+<!-- CHAPTER IX -->
+<section class="chapter" id="ch9">
+  <div class="chapter-head">
+    <div class="num">IX</div>
+    <h2>AI Agents</h2>
+    <div class="tagline">a model that acts, not just talks</div>
+  </div>
+  <div class="page">
+    <p>Give a plain LLM the request "book me a cricket lane tomorrow at 7 PM" and it can only describe what booking a lane might involve. Give it <strong>tools</strong> — real functions it's allowed to call — and it can actually do it.</p>
+
+    <div class="figure">
+      <svg viewBox="0 0 460 210" xmlns="http://www.w3.org/2000/svg">
+        <rect x="180" y="10" width="100" height="40" rx="6" fill="none" class="stroke-a" stroke-width="1.3"/>
+        <text x="205" y="35" font-family="Fraunces, serif" font-size="13" fill="currentColor">LLM</text>
+        <path d="M230,50 V70" class="stroke-b" stroke-width="1.3" marker-end="url(#a9)"/>
+        <path d="M230,70 L80,110" class="stroke-b" stroke-width="1.1" marker-end="url(#a9)"/>
+        <path d="M230,70 L230,110" class="stroke-b" stroke-width="1.1" marker-end="url(#a9)"/>
+        <path d="M230,70 L380,110" class="stroke-b" stroke-width="1.1" marker-end="url(#a9)"/>
+        <g font-family="Source Serif 4, serif" font-size="11" fill="currentColor">
+          <rect x="30" y="112" width="100" height="34" rx="5" fill="none" class="stroke-c" stroke-width="1.2"/>
+          <text x="38" y="133">checkAvailability()</text>
+          <rect x="180" y="112" width="100" height="34" rx="5" fill="none" class="stroke-c" stroke-width="1.2"/>
+          <text x="200" y="133">bookLane()</text>
+          <rect x="330" y="112" width="110" height="34" rx="5" fill="none" class="stroke-c" stroke-width="1.2"/>
+          <text x="342" y="133">confirmBooking()</text>
+        </g>
+        <path d="M80,146 C120,180 340,180 385,146" fill="none" class="stroke-a" stroke-width="1" opacity="0.6"/>
+        <text x="165" y="195" font-family="Source Serif 4, serif" font-style="italic" font-size="12" fill="currentColor">results flow back into the conversation</text>
+        <defs><marker id="a9" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="currentColor"/></marker></defs>
+      </svg>
+      <div class="cap">Fig. 9 — the model chooses which tool to reach for, then reads the result</div>
+    </div>
+
+    <p>The loop is: <em>user → LLM → tool selection → API/database/function → result → LLM → final response</em>. For an Android developer this is the doorway to apps that don't just wrap a chatbot, but genuinely act on the user's behalf.</p>
+  </div>
+</section>
+
+<!-- CHAPTER X -->
+<section class="chapter" id="ch10">
+  <div class="chapter-head">
+    <div class="num">X</div>
+    <h2>AI App Architecture</h2>
+    <div class="tagline">the unglamorous skill that actually separates engineers</div>
+  </div>
+  <div class="page">
+    <p>Knowing fifty AI libraries matters less than knowing how to wire a handful of them into something reliable. In most real products, the backend isn't just talking to one LLM — it's a hub with several spokes.</p>
+
+    <div class="figure">
+      <svg viewBox="0 0 420 240" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="210" cy="110" r="40" fill="none" class="stroke-a" stroke-width="1.5"/>
+        <text x="180" y="115" font-family="Fraunces, serif" font-size="13" fill="currentColor">Backend</text>
+        <line x1="210" y1="70" x2="210" y2="20" class="stroke-b" stroke-width="1.2"/>
+        <line x1="248" y1="130" x2="300" y2="170" class="stroke-b" stroke-width="1.2"/>
+        <line x1="172" y1="130" x2="120" y2="170" class="stroke-b" stroke-width="1.2"/>
+        <line x1="170" y1="95" x2="60" y2="70" class="stroke-b" stroke-width="1.2"/>
+        <text x="176" y="14" font-family="Source Serif 4, serif" font-size="11" fill="currentColor">LLM</text>
+        <text x="292" y="192" font-family="Source Serif 4, serif" font-size="11" fill="currentColor">Vector DB</text>
+        <text x="70" y="192" font-family="Source Serif 4, serif" font-size="11" fill="currentColor">Trad. APIs</text>
+        <text x="8" y="62" font-family="Source Serif 4, serif" font-size="11" fill="currentColor">AI services</text>
+      </svg>
+      <div class="cap">Fig. 10 — one backend, several specialized spokes</div>
+    </div>
+
+    <p>The concerns that live around that hub are what a mature AI product actually needs: security on every API call, streaming, retries and rate limits, caching, watching token cost, latency, observability, keeping prompts under version control, a fallback when a model is unavailable, PII handling, deciding what runs offline versus online, and rolling out model updates without breaking things. None of this shows up in a demo — all of it shows up in production.</p>
+  </div>
+</section>
+
+<!-- APPENDIX I -->
+<section class="appendix" id="appendix1">
+  <div class="page">
+    <h2>What to Skip — For Now</h2>
+    <p style="text-align:center; color:var(--ink-dim); margin-top:-16px; margin-bottom: 30px;">This path is AI <em>engineering</em>, not ML research.</p>
+    <ul class="skiplist">
+      <li>Training an LLM from scratch</li>
+      <li>Building your own transformer architecture</li>
+      <li>Advanced mathematical proofs</li>
+      <li>Distributed GPU training</li>
+      <li>CUDA optimization</li>
+      <li>Reading research papers every day</li>
+      <li>Becoming a data scientist</li>
+      <li>Learning every AI framework that exists</li>
+    </ul>
+  </div>
+</section>
+
+<!-- APPENDIX II -->
+<section class="appendix" id="appendix2">
+  <div class="page">
+    <h2>Priority Order</h2>
+    <ul class="priority-list">
+      <li><span>LLM API integration</span><span class="stars">★★★★★</span></li>
+      <li><span>RAG + embeddings</span><span class="stars">★★★★★</span></li>
+      <li><span>Agents / tool calling</span><span class="stars">★★★★★</span></li>
+      <li><span>On-device AI / LiteRT</span><span class="stars">★★★★★</span></li>
+      <li><span>Computer vision</span><span class="stars">★★★★★</span></li>
+      <li><span>Python + PyTorch basics</span><span class="stars">★★★★</span></li>
+      <li><span>ML fundamentals / statistics</span><span class="stars">★★★</span></li>
+      <li><span>Training models yourself</span><span class="stars">★★</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- CLOSING -->
+<section class="backcover" id="closing">
+  <h2>Senior Android Engineer <em>+</em> AI/ML <em>+</em> Computer Vision <em>+</em> On-device AI</h2>
+  <p>A far more differentiated line than "added the ChatGPT API." Your camera and native-code background already points straight at on-device AI and computer vision — build outward from there rather than starting at zero.</p>
+</section>
+
+<script>
+  const chapters = [
+    {id:'hero', label:'Cover'},
+    {id:'ch1', label:'I · AI Basics'},
+    {id:'ch2', label:'II · LLMs'},
+    {id:'ch3', label:'III · AI APIs'},
+    {id:'ch4', label:'IV · RAG'},
+    {id:'ch5', label:'V · On-Device'},
+    {id:'ch6', label:'VI · Vision'},
+    {id:'ch7', label:'VII · Python'},
+    {id:'ch8', label:'VIII · PyTorch'},
+    {id:'ch9', label:'IX · Agents'},
+    {id:'ch10', label:'X · Architecture'},
+    {id:'appendix1', label:'Skip List'},
+    {id:'appendix2', label:'Priorities'},
+    {id:'closing', label:'The Profile'}
+  ];
+  const ribbon = document.getElementById('ribbon');
+  try {
+    const targets = chapters.map(c => document.getElementById(c.id)).filter(Boolean);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const match = chapters.find(c => c.id === entry.target.id);
+          if (match) ribbon.textContent = match.label;
+        }
+      });
+    }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+    targets.forEach(t => io.observe(t));
+  } catch (e) { /* non-critical */ }
+</script>
+</body>
+</html>

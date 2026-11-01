@@ -51,17 +51,510 @@ code{font-family:'JetBrains Mono','Fira Mono',monospace;font-size:11px}
 .gc p,.gc li{font-size:11px;color:var(--muted);line-height:1.6}
 .ic{background:var(--s3);border:1px solid var(--b2);border-radius:4px;padding:1px 6px;font-family:monospace;font-size:11px;color:var(--blul)}
 a{color:var(--grnl)}
+pre.out{border-color:var(--grn);color:var(--grnl);margin-top:-4px}
+pre.out::before{content:'Output';display:block;font-family:'Inter',system-ui,sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
 </style>
 </head>
 <body>
 <nav><div class="nav-inner"><a href="roadmap.html">🗺 Roadmap</a><a href="android_core.html">📱 Android Core</a><a href="android_advanced.html">🔥 Advanced</a><a href="architecture.html">🏛 Architecture</a><a href="kotlin.html">🎯 Kotlin</a><a href="java.html" class="active">☕ Java</a><a href="coroutines_flow.html">⚡ Coroutines</a><a href="compose.html">🎨 Compose</a><a href="dependency_injection.html">💉 DI</a><a href="networking_storage.html">🌐 Net &amp; Storage</a><a href="testing.html">🧪 Testing</a><a href="system_design.html">🏗 System Design</a><a href="dsa_google.html">🧩 DSA</a></div></nav>
 <main>
 <h1>☕ Java — Interview Questions</h1>
-<p class="sub">Core Java, OOP, Collections, Concurrency, JVM internals — the Java foundations every Android interview still tests, even in a Kotlin-first codebase.</p>
+<p class="sub">Starts from zero (how Java code compiles and runs, types, operators, control flow, and "predict the output" puzzles), then builds up through OOP, Collections, Concurrency and JVM internals. These are the Java foundations every Android interview still tests, even in a Kotlin-first codebase.</p>
+
+<h2 id="start-here">Start Here: How Java Code Runs</h2>
+
+<details><summary><span class="qn" style="background:var(--grnb);color:var(--grnl)">Q1</span><span class="qt">From .java to running code: JDK vs JRE vs JVM, bytecode, and the JIT</span><span class="dif easy">Easy</span></summary>
+<div class="ans">
+<p>Java is <strong>compiled and then interpreted/JIT-compiled</strong>. <span class="ic">javac</span> turns source into platform-independent <strong>bytecode</strong> (<span class="ic">.class</span> files), not machine code. The JVM then loads that bytecode and executes it. That two-step design is what "write once, run anywhere" means: the bytecode is portable, while each OS/CPU gets its own JVM.</p>
+<pre><code><span class="cm">// Hello.java</span>
+<span class="kw">public</span> <span class="kw">class</span> <span class="ty">Hello</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"Hello, "</span> + args[<span class="cn">0</span>]);
+    }
+}</code></pre>
+<pre><code>$ javac Hello.java<span class="cm">      # compile: source → Hello.class (bytecode, NOT machine code)</span>
+$ java Hello World<span class="cm">      # JVM loads Hello.class, verifies it, calls Hello.main(["World"])</span>
+Hello, World
+$ javap -c Hello<span class="cm">        # disassemble the bytecode the JVM actually runs</span>
+  0: getstatic     #7<span class="cm">   // Field java/lang/System.out:Ljava/io/PrintStream;</span>
+  3: aload_0
+  4: iconst_0
+  5: aaload<span class="cm">             // args[0]</span>
+  6: invokedynamic #13<span class="cm">  // string concatenation</span>
+ 11: invokevirtual #17<span class="cm">  // Method java/io/PrintStream.println</span></code></pre>
+<p><strong>What the JVM does with a class, step by step:</strong></p>
+<ul>
+<li><strong>Load:</strong> a ClassLoader finds the <span class="ic">.class</span> bytes (bootstrap → platform → application loaders, parent-first delegation). Classes load <strong>lazily</strong>, on first use, not all at startup.</li>
+<li><strong>Link:</strong> <strong>verify</strong> the bytecode is safe (no stack overflow tricks, type-correct), <strong>prepare</strong> static fields with default values (0/null/false), <strong>resolve</strong> symbolic references.</li>
+<li><strong>Initialize:</strong> run static initializers and <span class="ic">static {}</span> blocks, once, on first active use (e.g. <span class="ic">new</span>, calling a static method, reading a non-constant static field).</li>
+<li><strong>Execute:</strong> the interpreter runs bytecode immediately; methods that get "hot" are compiled to native code by the <strong>JIT</strong> (C1 quickly, C2 with heavy optimization). That is why Java programs "warm up".</li>
+</ul>
+<div class="g3">
+<div class="gc"><h4 style="color:var(--grnl)">JDK</h4><p>Development kit = JRE + tools: <span class="ic">javac</span>, <span class="ic">javap</span>, <span class="ic">jar</span>, <span class="ic">jdb</span>, <span class="ic">jshell</span>. Needed to <em>build</em>.</p></div>
+<div class="gc"><h4 style="color:var(--blul)">JRE</h4><p>Runtime = JVM + the standard class library (<span class="ic">java.lang</span>, <span class="ic">java.util</span>...). Needed to <em>run</em>. (Since Java 11 it ships inside the JDK / via <span class="ic">jlink</span>.)</p></div>
+<div class="gc"><h4 style="color:var(--purl)">JVM</h4><p>The abstract machine: class loader, runtime memory areas (heap, stacks, metaspace), execution engine (interpreter + JIT + GC).</p></div>
+</div>
+<div class="note nblu"><strong>On Android there is no JVM on the device.</strong> <span class="ic">javac</span>/<span class="ic">kotlinc</span> → <span class="ic">.class</span> → <strong>D8</strong> (or <strong>R8</strong> in release builds, which also shrinks and obfuscates) → <span class="ic">classes.dex</span> → <strong>ART</strong> runs dex bytecode using JIT plus profile-guided AOT compilation. Language rules are the same; the runtime is different. See "JVM architecture, and how it relates to ART" further down.</div>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q2</span><span class="qt">Why is main "public static void main(String[] args)"? What breaks if you change it?</span><span class="dif easy">Easy</span></summary>
+<div class="ans">
+<ul>
+<li><strong>public</strong>: the launcher calls it from outside your class.</li>
+<li><strong>static</strong>: no object exists yet when the program starts, so the JVM must be able to call it without <span class="ic">new App()</span>.</li>
+<li><strong>void</strong>: the exit status isn't a return value; use <span class="ic">System.exit(code)</span>.</li>
+<li><strong>String[] args</strong>: command-line arguments (<span class="ic">args.length</span> is 0 when none are given, never null). <span class="ic">String... args</span> also works.</li>
+</ul>
+<pre><code><span class="kw">public</span> <span class="kw">class</span> <span class="ty">App</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {      <span class="cm">// the ONE signature the launcher looks for</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"real entry point, args = "</span> + args.length);
+        <span class="fn">main</span>(<span class="cn">42</span>);                                 <span class="cm">// you can call the overload yourself</span>
+    }
+
+    <span class="cm">// Overloading main is legal — but the JVM only ever calls main(String[])</span>
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="kw">int</span> x) {
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"overload called manually with "</span> + x);
+    }
+}</code></pre>
+<pre class="out"><code>real entry point, args = 0
+overload called manually with 42</code></pre>
+<p><strong>What the JDK 21 launcher actually says when the signature is wrong</strong>:</p>
+<ul>
+<li>Drop <span class="ic">static</span> → <span class="ic">Error: Main method is not static in class A</span></li>
+<li>Make it <span class="ic">private</span> → <span class="ic">Error: Main method not found in class B</span></li>
+<li>Return <span class="ic">int</span> → <span class="ic">Error: Main method must return a value of type void</span></li>
+<li>Modifier order (<span class="ic">static public</span>), parameter name, or <span class="ic">String...</span> → <strong>works fine</strong>.</li>
+</ul>
+<div class="note namb">All of these <strong>compile</strong>. The check happens at launch time, which makes it a favourite trick question. Since <strong>Java 25</strong> (JEP 512), a compact <span class="ic">void main()</span> with no <span class="ic">public</span>/<span class="ic">static</span>/<span class="ic">args</span> is also a valid entry point. Interviewers still expect you to explain the classic signature.</div>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q3</span><span class="qt">Primitive vs reference types: sizes, default values, and where they live</span><span class="dif easy">Easy</span></summary>
+<div class="ans">
+<div class="g3">
+<div class="gc"><h4 style="color:var(--grnl)">Integers</h4><p><span class="ic">byte</span> 8-bit (−128..127) · <span class="ic">short</span> 16-bit · <span class="ic">int</span> 32-bit (±2.1 billion) · <span class="ic">long</span> 64-bit (literal suffix <span class="ic">L</span>).</p></div>
+<div class="gc"><h4 style="color:var(--blul)">Floating point</h4><p><span class="ic">float</span> 32-bit (suffix <span class="ic">f</span>) · <span class="ic">double</span> 64-bit (the default for <span class="ic">1.5</span>). IEEE-754, so they are approximations.</p></div>
+<div class="gc"><h4 style="color:var(--purl)">Others</h4><p><span class="ic">char</span> 16-bit unsigned UTF-16 unit (0..65535) · <span class="ic">boolean</span> only <span class="ic">true</span>/<span class="ic">false</span>, never 0/1.</p></div>
+</div>
+<pre><code><span class="kw">public</span> <span class="kw">class</span> <span class="ty">Defaults</span> {
+    <span class="kw">static</span> <span class="kw">int</span> count;          <span class="cm">// fields get default values: 0</span>
+    <span class="kw">static</span> <span class="kw">boolean</span> ready;      <span class="cm">// false</span>
+    <span class="kw">static</span> <span class="kw">double</span> ratio;       <span class="cm">// 0.0</span>
+    <span class="kw">static</span> <span class="kw">char</span> letter;        <span class="cm">// '\u0000' (the null character)</span>
+    <span class="kw">static</span> <span class="ty">String</span> name;        <span class="cm">// null — every reference type defaults to null</span>
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {
+        <span class="kw">int</span> local;
+        <span class="cm">// System.out.println(local); // compile error: variable local might not have been initialized</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(count + <span class="st">" "</span> + ready + <span class="st">" "</span> + ratio + <span class="st">" "</span> + name);
+
+        <span class="kw">int</span> a = <span class="cn">10</span>;
+        <span class="kw">int</span> b = a;      <span class="cm">// copies the VALUE 10</span>
+        b++;
+        <span class="ty">System</span>.out.<span class="fn">println</span>(a + <span class="st">" "</span> + b);
+
+        <span class="kw">int</span>[] x = {<span class="cn">1</span>, <span class="cn">2</span>, <span class="cn">3</span>};
+        <span class="kw">int</span>[] y = x;    <span class="cm">// copies the REFERENCE — both variables point at the same array object</span>
+        y[<span class="cn">0</span>] = <span class="cn">99</span>;
+        <span class="ty">System</span>.out.<span class="fn">println</span>(x[<span class="cn">0</span>]);
+    }
+}</code></pre>
+<pre class="out"><code>0 false 0.0 null
+10 11
+99</code></pre>
+<ul>
+<li><strong>A primitive variable holds the value itself.</strong> A reference variable holds a <strong>handle to an object on the heap</strong> (or <span class="ic">null</span>). Assignment copies whatever the variable holds: the value, or the reference.</li>
+<li><strong>Local variables</strong> live in the method's stack frame and have <strong>no default</strong>. The compiler enforces "definite assignment".</li>
+<li><strong>Fields and array elements</strong> live on the heap inside their object and get <strong>zero-values</strong>: <span class="ic">0</span>, <span class="ic">0.0</span>, <span class="ic">false</span>, <span class="ic">'\u0000'</span>, <span class="ic">null</span>.</li>
+<li>Every primitive has a wrapper (<span class="ic">Integer</span>, <span class="ic">Double</span>...) so it can go into collections and generics. That is autoboxing, covered later.</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q4</span><span class="qt">Is Java pass-by-value or pass-by-reference?</span><span class="dif easy">Easy</span></summary>
+<div class="ans">
+<p><strong>Always pass-by-value.</strong> For objects, the value that gets copied is the <strong>reference</strong>. The method can therefore follow its copy to <strong>mutate the same object</strong>, but <strong>re-pointing</strong> the parameter only changes the method's local copy, never the caller's variable.</p>
+<pre><code><span class="kw">public</span> <span class="kw">class</span> <span class="ty">PassByValue</span> {
+    <span class="kw">static</span> <span class="kw">class</span> <span class="ty">Box</span> { <span class="kw">int</span> value; <span class="ty">Box</span>(<span class="kw">int</span> v) { value = v; } }
+
+    <span class="kw">static</span> <span class="kw">void</span> <span class="fn">change</span>(<span class="kw">int</span> n)      { n = <span class="cn">100</span>; }                 <span class="cm">// modifies a local copy</span>
+    <span class="kw">static</span> <span class="kw">void</span> <span class="fn">mutate</span>(<span class="ty">Box</span> b)      { b.value = <span class="cn">100</span>; }           <span class="cm">// follows the copied reference → same object</span>
+    <span class="kw">static</span> <span class="kw">void</span> <span class="fn">reassign</span>(<span class="ty">Box</span> b)    { b = <span class="kw">new</span> <span class="ty">Box</span>(<span class="cn">500</span>); }        <span class="cm">// re-points the LOCAL copy only</span>
+    <span class="kw">static</span> <span class="kw">void</span> <span class="fn">swap</span>(<span class="ty">Box</span> a, <span class="ty">Box</span> b) { <span class="ty">Box</span> t = a; a = b; b = t; } <span class="cm">// swaps the local copies only</span>
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {
+        <span class="kw">int</span> n = <span class="cn">1</span>;
+        <span class="fn">change</span>(n);
+        <span class="ty">System</span>.out.<span class="fn">println</span>(n);
+
+        <span class="ty">Box</span> box = <span class="kw">new</span> <span class="ty">Box</span>(<span class="cn">1</span>);
+        <span class="fn">mutate</span>(box);
+        <span class="ty">System</span>.out.<span class="fn">println</span>(box.value);
+
+        <span class="fn">reassign</span>(box);
+        <span class="ty">System</span>.out.<span class="fn">println</span>(box.value);
+
+        <span class="ty">Box</span> p = <span class="kw">new</span> <span class="ty">Box</span>(<span class="cn">1</span>), q = <span class="kw">new</span> <span class="ty">Box</span>(<span class="cn">2</span>);
+        <span class="fn">swap</span>(p, q);
+        <span class="ty">System</span>.out.<span class="fn">println</span>(p.value + <span class="st">" "</span> + q.value);
+    }
+}</code></pre>
+<pre class="out"><code>1
+100
+100
+1 2</code></pre>
+<div class="note ngrn"><strong>Interview one-liner:</strong> "Java passes references by value." That is why you can't write a working <span class="ic">swap(a, b)</span>, and why a method can never change the caller's <span class="ic">String</span> or <span class="ic">Integer</span>: they are immutable, so <span class="ic">s = s + "x"</span> inside a method just re-points the local copy. Kotlin behaves exactly the same.</div>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q5</span><span class="qt">Variable scope, shadowing, final references, var, and "effectively final"</span><span class="dif easy">Easy</span></summary>
+<div class="ans">
+<pre><code><span class="kw">import</span> java.util.<span class="ty">ArrayList</span>;
+<span class="kw">import</span> java.util.<span class="ty">List</span>;
+
+<span class="kw">public</span> <span class="kw">class</span> <span class="ty">ScopeAndFinal</span> {
+    <span class="kw">int</span> value = <span class="cn">1</span>;                       <span class="cm">// field</span>
+
+    <span class="kw">void</span> <span class="fn">show</span>(<span class="kw">int</span> value) {               <span class="cm">// the parameter SHADOWS the field</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(value);       <span class="cm">// → the parameter</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="kw">this</span>.value);  <span class="cm">// → the field, reached via 'this'</span>
+    }
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {
+        <span class="kw">new</span> <span class="ty">ScopeAndFinal</span>().<span class="fn">show</span>(<span class="cn">2</span>);
+
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="cn">0</span>; i &lt; <span class="cn">2</span>; i++) { <span class="kw">int</span> inner = i; }
+        <span class="cm">// System.out.println(inner);   // compile error: inner only exists inside the loop block</span>
+
+        <span class="kw">final</span> <span class="ty">List</span>&lt;<span class="ty">String</span>&gt; list = <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;();
+        list.<span class="fn">add</span>(<span class="st">"ok"</span>);                  <span class="cm">// allowed: final freezes the REFERENCE, not the object</span>
+        <span class="cm">// list = new ArrayList&lt;&gt;();    // compile error: cannot assign a value to final variable list</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(list);
+
+        <span class="kw">var</span> count = <span class="cn">10</span>;                  <span class="cm">// Java 10+: type inferred at COMPILE time — count is an int</span>
+        <span class="cm">// count = "ten";               // compile error: incompatible types</span>
+        <span class="kw">var</span> names = <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;<span class="ty">String</span>&gt;();
+        names.<span class="fn">add</span>(<span class="st">"A"</span>);
+        <span class="ty">System</span>.out.<span class="fn">println</span>(count + <span class="st">" "</span> + names);
+
+        <span class="kw">int</span> base = <span class="cn">5</span>;                    <span class="cm">// "effectively final": never reassigned after initialization</span>
+        <span class="ty">Runnable</span> r = () -&gt; <span class="ty">System</span>.out.<span class="fn">println</span>(base * <span class="cn">2</span>); <span class="cm">// lambdas may only capture effectively-final locals</span>
+        r.<span class="fn">run</span>();
+        <span class="cm">// base++;                      // would turn the lambda above into a compile error</span>
+    }
+}</code></pre>
+<pre class="out"><code>2
+1
+[ok]
+10 [A]
+10</code></pre>
+<ul>
+<li><strong>Scope = the enclosing <span class="ic">{ }</span> block.</strong> A variable declared inside a loop or <span class="ic">if</span> does not exist after it.</li>
+<li><strong>Shadowing:</strong> a parameter or local with the same name as a field hides the field; use <span class="ic">this.value</span>. Java does <strong>not</strong> let a local shadow another local in an enclosing scope (<span class="ic">int x; { int x; }</span> is a compile error).</li>
+<li><strong>final on a reference</strong> freezes the variable, not the object. A <span class="ic">final List</span> can still be modified. For real immutability use <span class="ic">List.of(...)</span> or unmodifiable copies.</li>
+<li><strong>var</strong> (Java 10+) is compile-time type inference for locals only. It is <strong>not</strong> dynamic typing: the type is fixed forever.</li>
+<li><strong>Effectively final</strong> = never reassigned. Lambdas and anonymous classes can only capture such locals, because they capture a <strong>copy of the value</strong>.</li>
+</ul>
+</div>
+</details>
+
+
+<h2 id="java-basics">Java Basics: Types, Operators &amp; Control Flow</h2>
+
+<details><summary><span class="qn" style="background:var(--cyab);color:var(--cyal)">Q6</span><span class="qt">Type casting: widening vs narrowing, numeric promotion, and char arithmetic</span><span class="dif med">Medium</span></summary>
+<div class="ans">
+<pre><code><span class="kw">public</span> <span class="kw">class</span> <span class="ty">Casting</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {
+        <span class="kw">int</span> i = <span class="cn">100</span>;
+        <span class="kw">long</span> l = i;                 <span class="cm">// widening: implicit, never loses magnitude</span>
+        <span class="kw">double</span> d = l;               <span class="cm">// widening: implicit</span>
+        <span class="kw">int</span> back = (<span class="kw">int</span>) <span class="cn">3.99</span>;      <span class="cm">// narrowing needs an explicit cast — TRUNCATES toward zero</span>
+        <span class="kw">byte</span> b = (<span class="kw">byte</span>) <span class="cn">200</span>;        <span class="cm">// keeps only the low 8 bits: 200 - 256 = -56</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(back + <span class="st">" "</span> + b);
+
+        <span class="kw">byte</span> x = <span class="cn">10</span>;
+        <span class="cm">// x = x + 1;               // compile error: x + 1 is promoted to int</span>
+        x += <span class="cn">1</span>;                     <span class="cm">// OK: compound assignment hides an implicit (byte) cast</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(x);
+
+        <span class="kw">char</span> c = <span class="st">'A'</span>;
+        <span class="ty">System</span>.out.<span class="fn">println</span>(c + <span class="cn">1</span>);          <span class="cm">// char is promoted to int → 66</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>((<span class="kw">char</span>) (c + <span class="cn">1</span>)); <span class="cm">// cast back to char → B</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">'A'</span> + <span class="st">'B'</span>);      <span class="cm">// two chars ADD as ints — no concatenation</span>
+
+        <span class="kw">long</span> big = <span class="cn">3_000_000_000L</span>;          <span class="cm">// without the L: "integer number too large"</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>((<span class="kw">int</span>) big);      <span class="cm">// narrowing silently overflows</span>
+    }
+}</code></pre>
+<pre class="out"><code>3 -56
+11
+66
+B
+131
+-1294967296</code></pre>
+<ul>
+<li><strong>Widening is automatic:</strong> <span class="ic">byte → short → int → long → float → double</span>, and <span class="ic">char → int</span>. (<span class="ic">long → float</span> is "widening" but can lose precision.)</li>
+<li><strong>Narrowing needs a cast</strong> and just chops bits: <span class="ic">(int) 3.99</span> truncates to 3; <span class="ic">(byte) 200</span> keeps the low 8 bits → −56.</li>
+<li><strong>Binary numeric promotion:</strong> any arithmetic on <span class="ic">byte</span>/<span class="ic">short</span>/<span class="ic">char</span> is done in <span class="ic">int</span>. Mixing with <span class="ic">long</span> → <span class="ic">long</span>, with <span class="ic">double</span> → <span class="ic">double</span>.</li>
+<li><strong>Compound assignment</strong> (<span class="ic">+=</span>, <span class="ic">*=</span>...) contains a hidden cast back to the left-hand type. That is why <span class="ic">b += 1</span> compiles but <span class="ic">b = b + 1</span> doesn't.</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--orab);color:var(--oral)">Q7</span><span class="qt">Number gotchas: integer division, overflow, modulo, and floating-point precision</span><span class="dif med">Medium</span></summary>
+<div class="ans">
+<pre><code><span class="kw">public</span> <span class="kw">class</span> <span class="ty">NumberGotchas</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="cn">7</span> / <span class="cn">2</span>);                       <span class="cm">// int / int → int, fraction discarded</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="cn">7</span> / <span class="cn">2.0</span>);                     <span class="cm">// one double operand → double division</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(-<span class="cn">7</span> / <span class="cn">2</span>);                      <span class="cm">// truncates toward zero, not floor</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(-<span class="cn">7</span> % <span class="cn">2</span>);                      <span class="cm">// remainder takes the sign of the dividend</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="ty">Integer</span>.<span class="ty">MAX_VALUE</span> + <span class="cn">1</span>);       <span class="cm">// silent wrap-around, no exception</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="ty">Math</span>.<span class="fn">abs</span>(<span class="ty">Integer</span>.<span class="ty">MIN_VALUE</span>)); <span class="cm">// still negative: +2147483648 doesn't fit</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="cn">0.1</span> + <span class="cn">0.2</span>);                   <span class="cm">// 0.1 has no exact binary representation</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="cn">0.1</span> + <span class="cn">0.2</span> == <span class="cn">0.3</span>);
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="cn">1.0</span> / <span class="cn">0</span>);                     <span class="cm">// floating-point division by zero → Infinity</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="ty">Double</span>.<span class="ty">NaN</span> == <span class="ty">Double</span>.<span class="ty">NaN</span>);    <span class="cm">// NaN is not equal to anything, even itself</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="ty">Math</span>.<span class="fn">round</span>(-<span class="cn">2.5</span>));            <span class="cm">// rounds half UP (toward +∞) → -2</span>
+        <span class="kw">try</span> {
+            <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="cn">1</span> / <span class="cn">0</span>);                   <span class="cm">// integer division by zero throws</span>
+        } <span class="kw">catch</span> (<span class="ty">ArithmeticException</span> e) {
+            <span class="ty">System</span>.out.<span class="fn">println</span>(e.<span class="fn">getMessage</span>());
+        }
+    }
+}</code></pre>
+<pre class="out"><code>3
+3.5
+-3
+-1
+-2147483648
+-2147483648
+0.30000000000000004
+false
+Infinity
+false
+-2
+/ by zero</code></pre>
+<ul>
+<li><strong>Integer overflow is silent.</strong> Use <span class="ic">Math.addExact</span>/<span class="ic">multiplyExact</span> to get an <span class="ic">ArithmeticException</span>, or <span class="ic">long</span>/<span class="ic">BigInteger</span>.</li>
+<li><strong>Never use double for money.</strong> Use <span class="ic">BigDecimal</span> (constructed from a String) or store cents in a <span class="ic">long</span>.</li>
+<li><strong>Compare doubles with a tolerance:</strong> <span class="ic">Math.abs(a - b) &lt; 1e-9</span>. Check NaN with <span class="ic">Double.isNaN(x)</span>, never <span class="ic">==</span>.</li>
+<li><strong>Integer <span class="ic">/ 0</span> throws; floating-point <span class="ic">/ 0</span> gives <span class="ic">Infinity</span> or <span class="ic">NaN</span>.</strong></li>
+<li><span class="ic">Math.round</span> is <span class="ic">floor(x + 0.5)</span>, so −2.5 → −2 but 2.5 → 3.</li>
+</ul>
+<div class="note namb">A classic binary-search bug: <span class="ic">mid = (lo + hi) / 2</span> overflows when <span class="ic">lo + hi &gt; Integer.MAX_VALUE</span>. Write <span class="ic">lo + (hi - lo) / 2</span> or <span class="ic">(lo + hi) &gt;&gt;&gt; 1</span>.</div>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--grnb);color:var(--grnl)">Q8</span><span class="qt">Operators: i++ vs ++i, the "j = j++" trap, short-circuiting, and bit shifts</span><span class="dif med">Medium</span></summary>
+<div class="ans">
+<pre><code><span class="kw">public</span> <span class="kw">class</span> <span class="ty">Operators</span> {
+    <span class="kw">static</span> <span class="kw">boolean</span> <span class="fn">check</span>(<span class="ty">String</span> name, <span class="kw">boolean</span> result) {
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"evaluated "</span> + name);
+        <span class="kw">return</span> result;
+    }
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {
+        <span class="kw">int</span> i = <span class="cn">5</span>;
+        <span class="kw">int</span> a = i++;   <span class="cm">// post-increment: use the OLD value, then increment</span>
+        <span class="kw">int</span> b = ++i;   <span class="cm">// pre-increment: increment, then use the NEW value</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(a + <span class="st">" "</span> + b + <span class="st">" "</span> + i);
+
+        <span class="kw">int</span> j = <span class="cn">5</span>;
+        j = j++;       <span class="cm">// classic trap: j++ yields 5, then the assignment overwrites j with 5</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(j);
+
+        <span class="kw">int</span> k = <span class="cn">1</span>;
+        k = k++ + ++k; <span class="cm">// left to right: 1 (k becomes 2) + 3 (k becomes 3) → 4</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(k);
+
+        <span class="kw">if</span> (<span class="fn">check</span>(<span class="st">"A"</span>, <span class="kw">false</span>) &amp;&amp; <span class="fn">check</span>(<span class="st">"B"</span>, <span class="kw">true</span>)) { }  <span class="cm">// &amp;&amp; short-circuits: B never runs</span>
+        <span class="kw">if</span> (<span class="fn">check</span>(<span class="st">"C"</span>, <span class="kw">false</span>) &amp;  <span class="fn">check</span>(<span class="st">"D"</span>, <span class="kw">true</span>)) { }  <span class="cm">// &amp; on booleans evaluates BOTH sides</span>
+
+        <span class="ty">System</span>.out.<span class="fn">println</span>(-<span class="cn">16</span> &gt;&gt; <span class="cn">2</span>);    <span class="cm">// arithmetic shift: keeps the sign bit</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(-<span class="cn">16</span> &gt;&gt;&gt; <span class="cn">28</span>);  <span class="cm">// logical shift: fills with zeros</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>((<span class="cn">5</span> &amp; <span class="cn">3</span>) + <span class="st">" "</span> + (<span class="cn">5</span> | <span class="cn">3</span>) + <span class="st">" "</span> + (<span class="cn">5</span> ^ <span class="cn">3</span>)); <span class="cm">// 101 vs 011: AND, OR, XOR</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="kw">true</span> ? <span class="cn">1</span> : <span class="cn">2.0</span>); <span class="cm">// ternary promotes both branches to one type</span>
+    }
+}</code></pre>
+<pre class="out"><code>5 7 7
+5
+4
+evaluated A
+evaluated C
+evaluated D
+-4
+15
+1 7 6
+1.0</code></pre>
+<ul>
+<li><strong>Operands are evaluated strictly left to right</strong> in Java (unlike C, where <span class="ic">k++ + ++k</span> is undefined behaviour).</li>
+<li><span class="ic">j = j++</span>: the right side saves the old value (5), increments <span class="ic">j</span> to 6, then the assignment writes 5 back. <span class="ic">j</span> never changes.</li>
+<li><span class="ic">&amp;&amp;</span> / <span class="ic">||</span> <strong>short-circuit</strong>. Use them for guards like <span class="ic">if (s != null &amp;&amp; s.isEmpty())</span>. <span class="ic">&amp;</span> / <span class="ic">|</span> on booleans always evaluate both sides.</li>
+<li><span class="ic">&gt;&gt;</span> keeps the sign (divides by 2ⁿ, rounding toward −∞); <span class="ic">&gt;&gt;&gt;</span> shifts zeros in (treats the value as unsigned).</li>
+<li><strong>Precedence to remember:</strong> unary > <span class="ic">* / %</span> > <span class="ic">+ -</span> > shifts > comparisons > <span class="ic">==</span> > <span class="ic">&amp;</span> > <span class="ic">^</span> > <span class="ic">|</span> > <span class="ic">&amp;&amp;</span> > <span class="ic">||</span> > <span class="ic">?:</span> > assignment. When in doubt, add parentheses.</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q9</span><span class="qt">Control flow: switch fall-through vs arrow switch, labeled break/continue, loops</span><span class="dif easy">Easy</span></summary>
+<div class="ans">
+<pre><code><span class="kw">public</span> <span class="kw">class</span> <span class="ty">ControlFlow</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {
+        <span class="kw">int</span> day = <span class="cn">2</span>;
+        <span class="kw">switch</span> (day) {               <span class="cm">// classic switch: execution FALLS THROUGH without break</span>
+            <span class="kw">case</span> <span class="cn">1</span>: <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"Mon"</span>);
+            <span class="kw">case</span> <span class="cn">2</span>: <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"Tue"</span>);
+            <span class="kw">case</span> <span class="cn">3</span>: <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"Wed"</span>);
+                    <span class="kw">break</span>;
+            <span class="kw">default</span>: <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"Other"</span>);
+        }
+
+        <span class="ty">String</span> type = <span class="kw">switch</span> (day) { <span class="cm">// Java 14+ arrow switch: no fall-through, and it's an expression</span>
+            <span class="kw">case</span> <span class="cn">1</span>, <span class="cn">7</span> -&gt; <span class="st">"weekend-ish"</span>;
+            <span class="kw">case</span> <span class="cn">2</span>, <span class="cn">3</span>, <span class="cn">4</span>, <span class="cn">5</span>, <span class="cn">6</span> -&gt; <span class="st">"weekday"</span>;
+            <span class="kw">default</span> -&gt; <span class="kw">throw</span> <span class="kw">new</span> <span class="ty">IllegalArgumentException</span>(<span class="st">"bad day"</span>);
+        };
+        <span class="ty">System</span>.out.<span class="fn">println</span>(type);
+
+        outer:
+        <span class="kw">for</span> (<span class="kw">int</span> r = <span class="cn">0</span>; r &lt; <span class="cn">3</span>; r++) {
+            <span class="kw">for</span> (<span class="kw">int</span> c = <span class="cn">0</span>; c &lt; <span class="cn">3</span>; c++) {
+                <span class="kw">if</span> (c == <span class="cn">1</span>) <span class="kw">continue</span> outer;   <span class="cm">// jump to the next iteration of the OUTER loop</span>
+                <span class="kw">if</span> (r == <span class="cn">2</span>) <span class="kw">break</span> outer;      <span class="cm">// exit both loops at once</span>
+                <span class="ty">System</span>.out.<span class="fn">println</span>(r + <span class="st">","</span> + c);
+            }
+        }
+
+        <span class="kw">int</span>[] nums = {<span class="cn">1</span>, <span class="cn">2</span>, <span class="cn">3</span>};
+        <span class="kw">for</span> (<span class="kw">int</span> n : nums) n *= <span class="cn">10</span>;           <span class="cm">// n is a copy of each element — the array is unchanged</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(nums[<span class="cn">0</span>]);
+
+        <span class="kw">int</span> x = <span class="cn">10</span>;
+        <span class="kw">do</span> {
+            <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"do-while body runs once: "</span> + x);
+        } <span class="kw">while</span> (x &lt; <span class="cn">5</span>);                      <span class="cm">// condition checked AFTER the body</span>
+    }
+}</code></pre>
+<pre class="out"><code>Tue
+Wed
+weekday
+0,0
+1,0
+1
+do-while body runs once: 10</code></pre>
+<ul>
+<li><strong>Classic switch falls through</strong> to the next <span class="ic">case</span> until a <span class="ic">break</span>. Forgetting <span class="ic">break</span> is a very common bug.</li>
+<li><strong>Arrow switch</strong> (Java 14+) never falls through, can list several labels, and can be used as an expression that yields a value. Over enums and sealed types it must be exhaustive.</li>
+<li>switch works on <span class="ic">byte</span>/<span class="ic">short</span>/<span class="ic">char</span>/<span class="ic">int</span>, their wrappers, <span class="ic">String</span> and <span class="ic">enum</span>. From Java 21, pattern matching works on any reference type. It does <strong>not</strong> work on <span class="ic">long</span>, <span class="ic">float</span>, <span class="ic">double</span> or <span class="ic">boolean</span>.</li>
+<li><strong>Labeled break/continue</strong> target an outer loop, which is the clean way to exit nested loops (e.g. a matrix search).</li>
+<li><strong>The enhanced for loop gives you a copy</strong> of each element. Assigning to the loop variable never changes the array. Removing from a collection inside it throws <span class="ic">ConcurrentModificationException</span>; use an <span class="ic">Iterator</span> or <span class="ic">removeIf</span>.</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q10</span><span class="qt">Arrays: fixed size, default values, printing, equality, and Arrays.asList pitfalls</span><span class="dif easy">Easy</span></summary>
+<div class="ans">
+<pre><code><span class="kw">import</span> java.util.<span class="ty">Arrays</span>;
+<span class="kw">import</span> java.util.<span class="ty">List</span>;
+
+<span class="kw">public</span> <span class="kw">class</span> <span class="ty">ArraysBasics</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {
+        <span class="kw">int</span>[] nums = <span class="kw">new</span> <span class="kw">int</span>[<span class="cn">3</span>];             <span class="cm">// fixed size; elements default to 0</span>
+        <span class="ty">String</span>[] names = <span class="kw">new</span> <span class="ty">String</span>[<span class="cn">2</span>];      <span class="cm">// reference elements default to null</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(nums.length + <span class="st">" "</span> + names[<span class="cn">0</span>]); <span class="cm">// length is a FIELD, not a method</span>
+
+        <span class="ty">System</span>.out.<span class="fn">println</span>(nums);            <span class="cm">// arrays don't override toString(): type code + hash</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="ty">Arrays</span>.<span class="fn">toString</span>(nums));
+
+        <span class="kw">int</span>[][] jagged = <span class="kw">new</span> <span class="kw">int</span>[<span class="cn">3</span>][];       <span class="cm">// a 2D array is an array of array references</span>
+        jagged[<span class="cn">0</span>] = <span class="kw">new</span> <span class="kw">int</span>[]{<span class="cn">1</span>};
+        jagged[<span class="cn">1</span>] = <span class="kw">new</span> <span class="kw">int</span>[]{<span class="cn">1</span>, <span class="cn">2</span>, <span class="cn">3</span>};      <span class="cm">// rows can have different lengths</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="ty">Arrays</span>.<span class="fn">deepToString</span>(jagged));
+
+        <span class="kw">int</span>[] a = {<span class="cn">1</span>, <span class="cn">2</span>}, b = {<span class="cn">1</span>, <span class="cn">2</span>};
+        <span class="ty">System</span>.out.<span class="fn">println</span>(a == b);              <span class="cm">// two different objects</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(a.<span class="fn">equals</span>(b));         <span class="cm">// arrays inherit Object.equals → still identity</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="ty">Arrays</span>.<span class="fn">equals</span>(a, b)); <span class="cm">// compares element by element</span>
+
+        <span class="ty">Object</span>[] objs = <span class="kw">new</span> <span class="ty">String</span>[<span class="cn">1</span>];       <span class="cm">// arrays are covariant...</span>
+        <span class="kw">try</span> { objs[<span class="cn">0</span>] = <span class="cn">42</span>; }                <span class="cm">// ...so the type check happens at RUNTIME</span>
+        <span class="kw">catch</span> (<span class="ty">ArrayStoreException</span> e) { <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"ArrayStoreException"</span>); }
+
+        <span class="ty">List</span>&lt;<span class="ty">Integer</span>&gt; fixed = <span class="ty">Arrays</span>.<span class="fn">asList</span>(<span class="cn">1</span>, <span class="cn">2</span>, <span class="cn">3</span>); <span class="cm">// a fixed-size List view over an array</span>
+        fixed.<span class="fn">set</span>(<span class="cn">0</span>, <span class="cn">9</span>);                              <span class="cm">// replacing is fine</span>
+        <span class="kw">try</span> { fixed.<span class="fn">add</span>(<span class="cn">4</span>); }                         <span class="cm">// growing is not</span>
+        <span class="kw">catch</span> (<span class="ty">UnsupportedOperationException</span> e) { <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"cannot add to Arrays.asList"</span>); }
+    }
+}</code></pre>
+<pre class="out"><code>3 null
+[I@1b6d3586
+[0, 0, 0]
+[[1], [1, 2, 3], null]
+false
+false
+true
+ArrayStoreException
+cannot add to Arrays.asList</code></pre>
+<ul>
+<li><strong>Arrays are objects</strong> with a fixed length chosen at creation. <span class="ic">array.length</span> (field) vs <span class="ic">string.length()</span> (method) vs <span class="ic">list.size()</span> (method) is a classic quiz.</li>
+<li><strong>Printing an array</strong> shows <span class="ic">[I@1b6d3586</span>: the type code (<span class="ic">[I</span> = int array) plus a hash. Use <span class="ic">Arrays.toString</span> / <span class="ic">deepToString</span>.</li>
+<li><span class="ic">==</span> and <span class="ic">.equals</span> on arrays both compare identity. Use <span class="ic">Arrays.equals</span> / <span class="ic">deepEquals</span>.</li>
+<li><strong>Arrays are covariant</strong> (<span class="ic">String[]</span> is an <span class="ic">Object[]</span>), so a bad store fails at runtime with <span class="ic">ArrayStoreException</span>. Generics are invariant and catch this at compile time.</li>
+<li><span class="ic">Arrays.asList</span> returns a fixed-size view backed by the array: <span class="ic">set</span> works, <span class="ic">add</span>/<span class="ic">remove</span> throw. <span class="ic">List.of</span> is fully immutable. Wrap with <span class="ic">new ArrayList&lt;&gt;(...)</span> for a growable list.</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q11</span><span class="qt">String concatenation puzzles: 1 + 2 + "3", char + char, and compile-time constants</span><span class="dif med">Medium</span></summary>
+<div class="ans">
+<pre><code><span class="kw">public</span> <span class="kw">class</span> <span class="ty">StringPuzzles</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="cn">1</span> + <span class="cn">2</span> + <span class="st">"3"</span>);      <span class="cm">// left to right: 1 + 2 = 3, then 3 + "3" → "33"</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"1"</span> + <span class="cn">2</span> + <span class="cn">3</span>);      <span class="cm">// once a String is on the left, + concatenates</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"1"</span> + (<span class="cn">2</span> + <span class="cn">3</span>));    <span class="cm">// parentheses force the arithmetic first</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">'a'</span> + <span class="st">'b'</span> + <span class="st">"c"</span>);  <span class="cm">// 'a' + 'b' = 97 + 98 = 195, then + "c"</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">""</span> + <span class="st">'a'</span> + <span class="st">'b'</span>);   <span class="cm">// String first → concatenation</span>
+
+        <span class="ty">String</span> s1 = <span class="st">"hello"</span>;
+        <span class="ty">String</span> s2 = <span class="st">"hel"</span> + <span class="st">"lo"</span>;             <span class="cm">// compile-time constant → folded to "hello", pooled</span>
+        <span class="ty">String</span> part = <span class="st">"hel"</span>;
+        <span class="ty">String</span> s3 = part + <span class="st">"lo"</span>;              <span class="cm">// computed at runtime → a new String on the heap</span>
+        <span class="kw">final</span> <span class="ty">String</span> fpart = <span class="st">"hel"</span>;
+        <span class="ty">String</span> s4 = fpart + <span class="st">"lo"</span>;             <span class="cm">// final variable + literal is a constant again → pooled</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>((s1 == s2) + <span class="st">" "</span> + (s1 == s3) + <span class="st">" "</span> + (s1 == s4) + <span class="st">" "</span> + s1.<span class="fn">equals</span>(s3));
+
+        <span class="ty">String</span> s = <span class="st">"abc"</span>;
+        s.<span class="fn">toUpperCase</span>();                      <span class="cm">// Strings are immutable: returns a NEW String, discarded here</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(s);
+
+        <span class="ty">String</span> n = <span class="kw">null</span>;
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"value: "</span> + n);   <span class="cm">// concatenation turns null into "null" — no NPE</span>
+    }
+}</code></pre>
+<pre class="out"><code>33
+123
+15
+195c
+ab
+true false true true
+abc
+value: null</code></pre>
+<ul>
+<li><span class="ic">+</span> is evaluated <strong>left to right</strong>. It is numeric addition until one side is a <span class="ic">String</span>, then everything after it becomes concatenation.</li>
+<li><span class="ic">char + char</span> is <strong>int</strong> addition: chars are numbers in Java.</li>
+<li><strong>Constant folding:</strong> <span class="ic">"hel" + "lo"</span> and <span class="ic">final</span> String constants are joined at compile time and interned, so <span class="ic">==</span> is <span class="ic">true</span>. Anything computed at runtime creates a new object. Always compare with <span class="ic">.equals()</span>.</li>
+<li>String methods (<span class="ic">toUpperCase</span>, <span class="ic">trim</span>, <span class="ic">replace</span>) <strong>return new Strings</strong>. Calling them without using the result does nothing.</li>
+<li><span class="ic">"x" + null</span> gives <span class="ic">"xnull"</span>, but <span class="ic">null.length()</span> throws <span class="ic">NullPointerException</span>.</li>
+</ul>
+</div>
+</details>
+
 
 <h2>OOP Fundamentals</h2>
 
-<details><summary><span class="qn" style="background:var(--grnb);color:var(--grnl)">Q1</span><span class="qt">Explain the four pillars of OOP — encapsulation, inheritance, polymorphism, abstraction</span><span class="dif easy">Easy</span></summary>
+<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q12</span><span class="qt">Explain the four pillars of OOP — encapsulation, inheritance, polymorphism, abstraction</span><span class="dif easy">Easy</span></summary>
 <div class="ans">
 <p><strong>Encapsulation</strong> hides internal state behind methods so invariants can't be violated from outside. <strong>Inheritance</strong> lets a class reuse and extend another's fields/behavior. <strong>Abstraction</strong> exposes "what" an object does while hiding "how". <strong>Polymorphism</strong> lets the same call site behave differently depending on the actual runtime type.</p>
 <pre><code><span class="cm">// Encapsulation: hide internal state behind methods</span>
@@ -101,7 +594,7 @@ s.<span class="fn">area</span>(); <span class="cm">// JVM dispatches to Circle.a
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q2</span><span class="qt">Interface vs abstract class — and what changed with Java 8+ default/static methods</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--cyab);color:var(--cyal)">Q13</span><span class="qt">Interface vs abstract class — and what changed with Java 8+ default/static methods</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="kw">interface</span> <span class="ty">Vehicle</span> {
     <span class="kw">void</span> <span class="fn">start</span>(); <span class="cm">// implicitly public abstract</span>
@@ -131,7 +624,7 @@ s.<span class="fn">area</span>(); <span class="cm">// JVM dispatches to Circle.a
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q3</span><span class="qt">Method overloading vs overriding — compile-time vs runtime polymorphism</span><span class="dif easy">Easy</span></summary>
+<details><summary><span class="qn" style="background:var(--orab);color:var(--oral)">Q14</span><span class="qt">Method overloading vs overriding — compile-time vs runtime polymorphism</span><span class="dif easy">Easy</span></summary>
 <div class="ans">
 <pre><code><span class="kw">class</span> <span class="ty">Calculator</span> {
     <span class="cm">// Overloading: same name, different parameter list — resolved at COMPILE time</span>
@@ -155,7 +648,7 @@ a.<span class="fn">sound</span>(); <span class="cm">// prints "Bark" — dynamic
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q4</span><span class="qt">Constructors and constructor chaining with this() and super()</span><span class="dif easy">Easy</span></summary>
+<details><summary><span class="qn" style="background:var(--grnb);color:var(--grnl)">Q15</span><span class="qt">Constructors and constructor chaining with this() and super()</span><span class="dif easy">Easy</span></summary>
 <div class="ans">
 <pre><code><span class="kw">class</span> <span class="ty">Person</span> {
     <span class="ty">String</span> name;
@@ -185,7 +678,7 @@ a.<span class="fn">sound</span>(); <span class="cm">// prints "Bark" — dynamic
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q5</span><span class="qt">Static vs instance members — memory, access, and initialization order</span><span class="dif easy">Easy</span></summary>
+<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q16</span><span class="qt">Static vs instance members — memory, access, and initialization order</span><span class="dif easy">Easy</span></summary>
 <div class="ans">
 <pre><code><span class="kw">class</span> <span class="ty">Counter</span> {
     <span class="kw">static int</span> totalCount = <span class="cn">0</span>;   <span class="cm">// ONE copy shared by all instances, lives in the Metaspace</span>
@@ -212,7 +705,7 @@ a.<span class="fn">sound</span>(); <span class="cm">// prints "Bark" — dynamic
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--cyab);color:var(--cyal)">Q6</span><span class="qt">The final keyword — final variable, method, and class</span><span class="dif easy">Easy</span></summary>
+<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q17</span><span class="qt">The final keyword — final variable, method, and class</span><span class="dif easy">Easy</span></summary>
 <div class="ans">
 <pre><code><span class="kw">final class</span> <span class="ty">ImmutablePoint</span> {       <span class="cm">// final class: cannot be subclassed at all</span>
     <span class="kw">final int</span> x, y;                <span class="cm">// final field: must be assigned exactly once</span>
@@ -232,7 +725,7 @@ names.<span class="fn">add</span>(<span class="st">"Alice"</span>); <span class=
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--orab);color:var(--oral)">Q7</span><span class="qt">Access modifiers (public/protected/default/private) and package visibility</span><span class="dif easy">Easy</span></summary>
+<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q18</span><span class="qt">Access modifiers (public/protected/default/private) and package visibility</span><span class="dif easy">Easy</span></summary>
 <div class="ans">
 <ul>
 <li><strong>private:</strong> visible only within the declaring class (including inner classes of it).</li>
@@ -251,9 +744,164 @@ names.<span class="fn">add</span>(<span class="st">"Alice"</span>); <span class=
 </div>
 </details>
 
+<h2 id="predict-output">Predict the Output: Inheritance &amp; Initialization</h2>
+
+<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q19</span><span class="qt">Initialization order with inheritance: static blocks, instance blocks, constructors</span><span class="dif med">Medium</span></summary>
+<div class="ans">
+<pre><code><span class="kw">public</span> <span class="kw">class</span> <span class="ty">InitOrder</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"-- first object --"</span>);
+        <span class="kw">new</span> <span class="ty">Child</span>();
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"-- second object --"</span>);
+        <span class="kw">new</span> <span class="ty">Child</span>();
+    }
+}
+
+<span class="kw">class</span> <span class="ty">Parent</span> {
+    <span class="kw">static</span> { <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"1. Parent static block"</span>); }
+    { <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"3. Parent instance block"</span>); }
+    <span class="ty">Parent</span>() { <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"4. Parent constructor"</span>); }
+}
+
+<span class="kw">class</span> <span class="ty">Child</span> <span class="kw">extends</span> <span class="ty">Parent</span> {
+    <span class="kw">static</span> { <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"2. Child static block"</span>); }
+    { <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"5. Child instance block"</span>); }
+    <span class="ty">Child</span>() {
+        <span class="kw">super</span>();   <span class="cm">// inserted by the compiler even if you omit it — the parent part is built first</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"6. Child constructor"</span>);
+    }
+}</code></pre>
+<pre class="out"><code>-- first object --
+1. Parent static block
+2. Child static block
+3. Parent instance block
+4. Parent constructor
+5. Child instance block
+6. Child constructor
+-- second object --
+3. Parent instance block
+4. Parent constructor
+5. Child instance block
+6. Child constructor</code></pre>
+<ol>
+<li><strong>Class initialization (once per class, parent first):</strong> parent static fields/blocks, then child static fields/blocks, in source order.</li>
+<li><strong>Every <span class="ic">new Child()</span>:</strong> parent instance fields/blocks → parent constructor body → child instance fields/blocks → child constructor body.</li>
+</ol>
+<p>The compiler copies instance initializers into <strong>every constructor, right after the <span class="ic">super(...)</span> call</strong>. That is why the parent object is completely built before any child field is assigned.</p>
+<div class="note nblu">Static initialization is <strong>lazy</strong>. It runs on first active use, not at program start. Reading a <span class="ic">static final</span> compile-time constant (e.g. <span class="ic">static final int MAX = 10</span>) does <strong>not</strong> trigger it, because the value is inlined into the caller at compile time.</div>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--cyab);color:var(--cyal)">Q20</span><span class="qt">Fields and static methods are hidden, not overridden</span><span class="dif med">Medium</span></summary>
+<div class="ans">
+<pre><code><span class="kw">public</span> <span class="kw">class</span> <span class="ty">Hiding</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {
+        <span class="ty">Parent</span> p = <span class="kw">new</span> <span class="ty">Child</span>();              <span class="cm">// declared type Parent, runtime type Child</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(p.name);          <span class="cm">// FIELD → picked by the declared type</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(p.<span class="fn">getName</span>());     <span class="cm">// INSTANCE method → picked by the runtime type</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(p.<span class="fn">kind</span>());        <span class="cm">// STATIC method → picked by the declared type (hidden, not overridden)</span>
+        <span class="ty">System</span>.out.<span class="fn">println</span>(((<span class="ty">Child</span>) p).name);
+    }
+}
+
+<span class="kw">class</span> <span class="ty">Parent</span> {
+    <span class="ty">String</span> name = <span class="st">"parent"</span>;
+    <span class="ty">String</span> <span class="fn">getName</span>() { <span class="kw">return</span> name; }
+    <span class="kw">static</span> <span class="ty">String</span> <span class="fn">kind</span>() { <span class="kw">return</span> <span class="st">"static Parent"</span>; }
+}
+
+<span class="kw">class</span> <span class="ty">Child</span> <span class="kw">extends</span> <span class="ty">Parent</span> {
+    <span class="ty">String</span> name = <span class="st">"child"</span>;                   <span class="cm">// a SECOND field that hides Parent.name</span>
+    <span class="an">@Override</span> <span class="ty">String</span> <span class="fn">getName</span>() { <span class="kw">return</span> name; }
+    <span class="kw">static</span> <span class="ty">String</span> <span class="fn">kind</span>() { <span class="kw">return</span> <span class="st">"static Child"</span>; }  <span class="cm">// adding @Override here is a compile error</span>
+}</code></pre>
+<pre class="out"><code>parent
+child
+static Parent
+child</code></pre>
+<ul>
+<li><strong>Only instance methods are polymorphic</strong> (resolved at runtime through the vtable).</li>
+<li><strong>Fields</strong> are resolved from the <strong>declared</strong> type at compile time. A child field with the same name is a second, separate field.</li>
+<li><strong>Static methods</strong> belong to the class, so a same-signature static in the child <strong>hides</strong> the parent's. Calling a static through an instance compiles but uses the declared type. Linters flag it.</li>
+<li><span class="ic">private</span> methods aren't inherited and <span class="ic">final</span> methods can't be overridden, so both are bound at compile time too.</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--orab);color:var(--oral)">Q21</span><span class="qt">Calling an overridable method from a constructor: why does it print null?</span><span class="dif hard">Hard</span></summary>
+<div class="ans">
+<pre><code><span class="kw">public</span> <span class="kw">class</span> <span class="ty">CtorTrap</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {
+        <span class="kw">new</span> <span class="ty">Child</span>();
+    }
+}
+
+<span class="kw">class</span> <span class="ty">Parent</span> {
+    <span class="ty">Parent</span>() {
+        <span class="fn">describe</span>();                    <span class="cm">// virtual call from a constructor → runs Child.describe()</span>
+    }
+    <span class="kw">void</span> <span class="fn">describe</span>() { <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"Parent"</span>); }
+}
+
+<span class="kw">class</span> <span class="ty">Child</span> <span class="kw">extends</span> <span class="ty">Parent</span> {
+    <span class="kw">private</span> <span class="ty">String</span> label = <span class="st">"ready"</span>;    <span class="cm">// assigned only AFTER Parent() returns</span>
+    <span class="kw">private</span> <span class="kw">final</span> <span class="kw">int</span> size = <span class="cn">42</span>;       <span class="cm">// final + constant initializer = compile-time constant, inlined</span>
+    <span class="kw">private</span> <span class="kw">int</span> count = <span class="cn">7</span>;             <span class="cm">// also assigned after Parent() returns</span>
+
+    <span class="an">@Override</span>
+    <span class="kw">void</span> <span class="fn">describe</span>() {
+        <span class="ty">System</span>.out.<span class="fn">println</span>(label + <span class="st">" "</span> + size + <span class="st">" "</span> + count);
+    }
+}</code></pre>
+<pre class="out"><code>null 42 0</code></pre>
+<p><span class="ic">new Child()</span> first runs <span class="ic">Parent()</span>. Its call to <span class="ic">describe()</span> is dynamically dispatched to <span class="ic">Child.describe()</span>, but Child's field initializers haven't run yet, so fields still hold their defaults (<span class="ic">null</span>, <span class="ic">0</span>). <span class="ic">size</span> prints 42 only because a <span class="ic">final</span> field with a constant initializer is a compile-time constant that gets inlined.</p>
+<div class="note nred"><strong>Rule (Effective Java, Item 19):</strong> constructors must not call overridable methods. Make the method <span class="ic">private</span>/<span class="ic">final</span>, or move the work out of the constructor. The same bug shows up in Kotlin (a non-null <span class="ic">val</span> reads as <span class="ic">null</span>) and in Android custom Views that override methods called from the super constructor.</div>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--grnb);color:var(--grnl)">Q22</span><span class="qt">Overload resolution puzzles: null arguments, widening vs boxing vs varargs</span><span class="dif hard">Hard</span></summary>
+<div class="ans">
+<pre><code><span class="kw">public</span> <span class="kw">class</span> <span class="ty">Overloads</span> {
+    <span class="kw">static</span> <span class="kw">void</span> <span class="fn">print</span>(<span class="ty">Object</span> o)  { <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"Object"</span>); }
+    <span class="kw">static</span> <span class="kw">void</span> <span class="fn">print</span>(<span class="ty">String</span> s)  { <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"String"</span>); }
+
+    <span class="kw">static</span> <span class="kw">void</span> <span class="fn">num</span>(<span class="kw">long</span> x)      { <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"long"</span>); }
+    <span class="kw">static</span> <span class="kw">void</span> <span class="fn">num</span>(<span class="ty">Integer</span> x)   { <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"Integer"</span>); }
+    <span class="kw">static</span> <span class="kw">void</span> <span class="fn">num</span>(<span class="kw">int</span>... x)    { <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"varargs"</span>); }
+
+    <span class="kw">static</span> <span class="kw">void</span> <span class="fn">box</span>(<span class="ty">Object</span> o)    { <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"Object"</span>); }
+    <span class="kw">static</span> <span class="kw">void</span> <span class="fn">box</span>(<span class="kw">long</span> x)      { <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"long"</span>); }
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {
+        <span class="fn">print</span>(<span class="kw">null</span>);              <span class="cm">// both fit; String is MORE SPECIFIC than Object</span>
+        <span class="ty">Object</span> o = <span class="st">"hi"</span>;
+        <span class="fn">print</span>(o);                 <span class="cm">// picked from the DECLARED type at compile time, not the runtime type</span>
+        <span class="fn">num</span>(<span class="cn">5</span>);                   <span class="cm">// phase 1: widening int → long wins over boxing to Integer</span>
+        <span class="fn">num</span>(<span class="ty">Integer</span>.<span class="fn">valueOf</span>(<span class="cn">5</span>));  <span class="cm">// exact match</span>
+        <span class="fn">num</span>();                    <span class="cm">// only varargs fits</span>
+        <span class="fn">box</span>(<span class="st">'c'</span>);                 <span class="cm">// char → long widening (phase 1) beats boxing to Character</span>
+    }
+}</code></pre>
+<pre class="out"><code>String
+Object
+long
+Integer
+varargs
+long</code></pre>
+<p>The compiler picks an overload <strong>at compile time from declared types</strong>, in three phases. It stops at the first phase that finds a match:</p>
+<ol>
+<li><strong>Phase 1:</strong> exact match or primitive <strong>widening</strong>. No boxing, no varargs.</li>
+<li><strong>Phase 2:</strong> also allow <strong>boxing/unboxing</strong>.</li>
+<li><strong>Phase 3:</strong> also allow <strong>varargs</strong>.</li>
+</ol>
+<p>Within a phase, the <strong>most specific</strong> method wins (<span class="ic">String</span> beats <span class="ic">Object</span>). If none is most specific, it's a compile error. For example, <span class="ic">print(null)</span> with both <span class="ic">print(String)</span> and <span class="ic">print(Integer)</span> is ambiguous.</p>
+</div>
+</details>
+
+
 <h2>Object Class &amp; Core Semantics</h2>
 
-<details><summary><span class="qn" style="background:var(--grnb);color:var(--grnl)">Q8</span><span class="qt">What is the difference between == and .equals()?</span><span class="dif easy">Easy</span></summary>
+<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q23</span><span class="qt">What is the difference between == and .equals()?</span><span class="dif easy">Easy</span></summary>
 <div class="ans">
 <pre><code><span class="ty">String</span> a = <span class="kw">new</span> <span class="ty">String</span>(<span class="st">"hello"</span>);
 <span class="ty">String</span> b = <span class="kw">new</span> <span class="ty">String</span>(<span class="st">"hello"</span>);
@@ -270,7 +918,7 @@ p == q;        <span class="cm">// true — primitives always compare by VALUE, 
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q9</span><span class="qt">The equals()/hashCode() contract — why breaking it corrupts HashMap/HashSet</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q24</span><span class="qt">The equals()/hashCode() contract — why breaking it corrupts HashMap/HashSet</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <p>The contract: if <span class="ic">a.equals(b)</span> is true, then <span class="ic">a.hashCode() == b.hashCode()</span> <strong>must</strong> also be true. The reverse isn't required — unequal objects are allowed to share a hash code (a collision), it's just slower to resolve.</p>
 <pre><code><span class="kw">class</span> <span class="ty">BadKey</span> {
@@ -309,7 +957,7 @@ map.<span class="fn">get</span>(<span class="kw">new</span> <span class="ty">Bad
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q10</span><span class="qt">toString() and clone() — shallow vs deep copy</span><span class="dif easy">Easy</span></summary>
+<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q25</span><span class="qt">toString() and clone() — shallow vs deep copy</span><span class="dif easy">Easy</span></summary>
 <div class="ans">
 <pre><code><span class="kw">class</span> <span class="ty">Point</span> {
     <span class="kw">int</span> x, y;
@@ -333,7 +981,7 @@ map.<span class="fn">get</span>(<span class="kw">new</span> <span class="ty">Bad
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q11</span><span class="qt">String immutability and the String pool — what does intern() do?</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q26</span><span class="qt">String immutability and the String pool — what does intern() do?</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="ty">String</span> a = <span class="st">"hello"</span>;              <span class="cm">// literal — placed in the String pool</span>
 <span class="ty">String</span> b = <span class="st">"hello"</span>;              <span class="cm">// reuses the SAME pooled object</span>
@@ -353,7 +1001,7 @@ a == d;        <span class="cm">// true — intern() looked it up in (or added i
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q12</span><span class="qt">String vs StringBuilder vs StringBuffer</span><span class="dif easy">Easy</span></summary>
+<details><summary><span class="qn" style="background:var(--cyab);color:var(--cyal)">Q27</span><span class="qt">String vs StringBuilder vs StringBuffer</span><span class="dif easy">Easy</span></summary>
 <div class="ans">
 <pre><code><span class="ty">String</span> s = <span class="st">"a"</span>;
 <span class="kw">for</span> (<span class="kw">int</span> i = <span class="cn">0</span>; i &lt; <span class="cn">5</span>; i++) {
@@ -371,7 +1019,7 @@ sbuf.<span class="fn">append</span>(<span class="st">"x"</span>);               
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--cyab);color:var(--cyal)">Q13</span><span class="qt">Autoboxing/unboxing pitfalls, Integer caching, and instanceof pattern matching</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--orab);color:var(--oral)">Q28</span><span class="qt">Autoboxing/unboxing pitfalls, Integer caching, and instanceof pattern matching</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="ty">Integer</span> a = <span class="cn">100</span>, b = <span class="cn">100</span>;
 a == b;          <span class="cm">// true — both fall inside the cached range [-128, 127]</span>
@@ -396,7 +1044,7 @@ c == d;          <span class="cm">// false — outside the cache, two distinct I
 
 <h2>Exception Handling</h2>
 
-<details><summary><span class="qn" style="background:var(--orab);color:var(--oral)">Q14</span><span class="qt">Checked vs unchecked exceptions and the exception hierarchy</span><span class="dif easy">Easy</span></summary>
+<details><summary><span class="qn" style="background:var(--grnb);color:var(--grnl)">Q29</span><span class="qt">Checked vs unchecked exceptions and the exception hierarchy</span><span class="dif easy">Easy</span></summary>
 <div class="ans">
 <pre><code>Throwable
 ├── Error                     <span class="cm">// OutOfMemoryError, StackOverflowError — not meant to be caught/recovered from</span>
@@ -419,7 +1067,7 @@ c == d;          <span class="cm">// false — outside the cache, two distinct I
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--grnb);color:var(--grnl)">Q15</span><span class="qt">try-catch-finally execution order — what happens when finally meets return?</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q30</span><span class="qt">try-catch-finally execution order — what happens when finally meets return?</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="kw">static int</span> <span class="fn">test</span>() {
     <span class="kw">try</span> {
@@ -444,7 +1092,7 @@ c == d;          <span class="cm">// false — outside the cache, two distinct I
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q16</span><span class="qt">try-with-resources and AutoCloseable</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q31</span><span class="qt">try-with-resources and AutoCloseable</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="kw">class</span> <span class="ty">DbConnection</span> <span class="kw">implements</span> <span class="ty">AutoCloseable</span> {
     <span class="ty">DbConnection</span>() { <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="st">"opened"</span>); }
@@ -461,7 +1109,7 @@ c == d;          <span class="cm">// false — outside the cache, two distinct I
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q17</span><span class="qt">Custom exceptions, exception chaining, and why finalize() is deprecated</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q32</span><span class="qt">Custom exceptions, exception chaining, and why finalize() is deprecated</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="kw">class</span> <span class="ty">InsufficientFundsException</span> <span class="kw">extends</span> <span class="ty">Exception</span> { <span class="cm">// a checked, domain-specific exception</span>
     <span class="kw">public</span> <span class="ty">InsufficientFundsException</span>(<span class="ty">String</span> message, <span class="ty">Throwable</span> cause) {
@@ -475,13 +1123,13 @@ c == d;          <span class="cm">// false — outside the cache, two distinct I
     <span class="kw">throw new</span> <span class="ty">InsufficientFundsException</span>(<span class="st">"Transfer failed"</span>, e); <span class="cm">// wrap, don't swallow</span>
 }
 <span class="cm">// e.getCause() on the new exception still returns the original SQLException + its stack trace</span></code></pre>
-<p><strong>finally vs finalize() vs try-with-resources:</strong> <span class="ic">finally</span> is a deterministic block that always runs right after <span class="ic">try</span>/<span class="ic">catch</span>. <span class="ic">finalize()</span> was <span class="ic">Object</span>'s hook for the garbage collector to run cleanup before reclaiming an object — but it's <strong>deprecated since Java 9 and removed in Java 18</strong>, because it runs on an unpredictable GC thread at an unpredictable time (or may never run at all), can resurrect "dead" objects, and can hang the collector. <span class="ic">try-with-resources</span> (Q16) is the deterministic, immediate replacement for cleanup logic that used to live in <span class="ic">finalize()</span>.</p>
+<p><strong>finally vs finalize() vs try-with-resources:</strong> <span class="ic">finally</span> is a deterministic block that always runs right after <span class="ic">try</span>/<span class="ic">catch</span>. <span class="ic">finalize()</span> was <span class="ic">Object</span>'s hook for the garbage collector to run cleanup before reclaiming an object — but it's <strong>deprecated since Java 9 and removed in Java 18</strong>, because it runs on an unpredictable GC thread at an unpredictable time (or may never run at all), can resurrect "dead" objects, and can hang the collector. <span class="ic">try-with-resources</span> (Q31) is the deterministic, immediate replacement for cleanup logic that used to live in <span class="ic">finalize()</span>.</p>
 </div>
 </details>
 
 <h2>Collections Framework</h2>
 
-<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q18</span><span class="qt">ArrayList vs LinkedList — internals and when to use which</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q33</span><span class="qt">ArrayList vs LinkedList — internals and when to use which</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <p>Quick hierarchy refresher: <span class="ic">Collection</span> branches into <span class="ic">List</span> (ArrayList, LinkedList, Vector), <span class="ic">Set</span> (HashSet, LinkedHashSet, TreeSet), and <span class="ic">Queue</span>/<span class="ic">Deque</span> (LinkedList, ArrayDeque, PriorityQueue). <span class="ic">Map</span> is a <strong>separate</strong> hierarchy — it does not extend <span class="ic">Collection</span> at all, since it stores key-value pairs, not single elements.</p>
 <pre><code><span class="ty">List</span>&lt;<span class="ty">Integer</span>&gt; arrayList = <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;(); <span class="cm">// backed by a resizable Object[] array</span>
@@ -497,7 +1145,7 @@ linkedList.<span class="fn">addLast</span>(x);         <span class="cm">// O(1)<
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q19</span><span class="qt">HashMap internals — buckets, hashing, resize, and Java 8+ treeification</span><span class="dif hard">Hard</span></summary>
+<details><summary><span class="qn" style="background:var(--cyab);color:var(--cyal)">Q34</span><span class="qt">HashMap internals — buckets, hashing, resize, and Java 8+ treeification</span><span class="dif hard">Hard</span></summary>
 <div class="ans">
 <pre><code><span class="cm">// Simplified internal structure</span>
 <span class="kw">class</span> <span class="ty">HashMap</span>&lt;K,V&gt; {
@@ -525,7 +1173,7 @@ linkedList.<span class="fn">addLast</span>(x);         <span class="cm">// O(1)<
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q20</span><span class="qt">HashMap vs Hashtable vs ConcurrentHashMap vs LinkedHashMap vs TreeMap</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--orab);color:var(--oral)">Q35</span><span class="qt">HashMap vs Hashtable vs ConcurrentHashMap vs LinkedHashMap vs TreeMap</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <ul>
 <li><strong>HashMap:</strong> not synchronized, allows one <span class="ic">null</span> key and multiple <span class="ic">null</span> values, no ordering guarantee, best general-purpose performance.</li>
@@ -551,7 +1199,7 @@ linkedList.<span class="fn">addLast</span>(x);         <span class="cm">// O(1)<
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q21</span><span class="qt">Fail-fast vs fail-safe iterators, and Iterator vs ListIterator</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--grnb);color:var(--grnl)">Q36</span><span class="qt">Fail-fast vs fail-safe iterators, and Iterator vs ListIterator</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="ty">List</span>&lt;<span class="ty">Integer</span>&gt; list = <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;(<span class="ty">List</span>.<span class="fn">of</span>(<span class="cn">1</span>, <span class="cn">2</span>, <span class="cn">3</span>));
 <span class="kw">for</span> (<span class="ty">Integer</span> n : list) {
@@ -575,7 +1223,7 @@ linkedList.<span class="fn">addLast</span>(x);         <span class="cm">// O(1)<
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q22</span><span class="qt">Comparable vs Comparator</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q37</span><span class="qt">Comparable vs Comparator</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="kw">class</span> <span class="ty">Employee</span> <span class="kw">implements</span> <span class="ty">Comparable</span>&lt;<span class="ty">Employee</span>&gt; { <span class="cm">// natural ordering — exactly ONE per class</span>
     <span class="kw">int</span> salary;
@@ -596,7 +1244,7 @@ employees.<span class="fn">sort</span>(byNameThenAge.<span class="fn">reversed</
 
 <h2>Generics</h2>
 
-<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q23</span><span class="qt">Type erasure and its consequences</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q38</span><span class="qt">Type erasure and its consequences</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="ty">List</span>&lt;<span class="ty">String</span>&gt; strings = <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;();
 <span class="ty">List</span>&lt;<span class="ty">Integer</span>&gt; ints = <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;();
@@ -620,7 +1268,7 @@ strings.<span class="fn">getClass</span>() == ints.<span class="fn">getClass</sp
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q24</span><span class="qt">Bounded type parameters and wildcards — the PECS principle</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q39</span><span class="qt">Bounded type parameters and wildcards — the PECS principle</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="cm">// Bounded type parameter: T must be a Number or a subtype of it</span>
 <span class="kw">static</span> &lt;T <span class="kw">extends</span> <span class="ty">Number</span>&gt; <span class="kw">double</span> <span class="fn">sum</span>(<span class="ty">List</span>&lt;T&gt; list) {
@@ -646,7 +1294,7 @@ strings.<span class="fn">getClass</span>() == ints.<span class="fn">getClass</sp
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q25</span><span class="qt">Why can't you create generic arrays in Java?</span><span class="dif hard">Hard</span></summary>
+<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q40</span><span class="qt">Why can't you create generic arrays in Java?</span><span class="dif hard">Hard</span></summary>
 <div class="ans">
 <pre><code><span class="cm">// List&lt;String&gt;[] arr = new List&lt;String&gt;[10]; // COMPILE ERROR: generic array creation</span>
 
@@ -665,7 +1313,7 @@ T[] arr = (T[]) <span class="kw">new</span> <span class="ty">Object</span>[<span
 
 <h2>Multithreading &amp; Concurrency</h2>
 
-<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q26</span><span class="qt">Thread vs Runnable vs Callable</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--cyab);color:var(--cyal)">Q41</span><span class="qt">Thread vs Runnable vs Callable</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="kw">class</span> <span class="ty">MyThread</span> <span class="kw">extends</span> <span class="ty">Thread</span> {           <span class="cm">// extends Thread: uses up your one shot at extending a class</span>
     <span class="an">@Override</span>
@@ -688,7 +1336,7 @@ future.<span class="fn">get</span>(); <span class="cm">// 42 — blocks the call
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q27</span><span class="qt">Thread lifecycle states</span><span class="dif easy">Easy</span></summary>
+<details><summary><span class="qn" style="background:var(--orab);color:var(--oral)">Q42</span><span class="qt">Thread lifecycle states</span><span class="dif easy">Easy</span></summary>
 <div class="ans">
 <ul>
 <li><strong>NEW:</strong> created but <span class="ic">start()</span> not yet called.</li>
@@ -705,7 +1353,7 @@ t.<span class="fn">getState</span>();  <span class="cm">// Thread.State.RUNNABLE
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q28</span><span class="qt">The synchronized keyword — method vs block, intrinsic locks and monitors</span><span class="dif hard">Hard</span></summary>
+<details><summary><span class="qn" style="background:var(--grnb);color:var(--grnl)">Q43</span><span class="qt">The synchronized keyword — method vs block, intrinsic locks and monitors</span><span class="dif hard">Hard</span></summary>
 <div class="ans">
 <pre><code><span class="kw">class</span> <span class="ty">Counter</span> {
     <span class="kw">private int</span> count = <span class="cn">0</span>;
@@ -728,7 +1376,7 @@ t.<span class="fn">getState</span>();  <span class="cm">// Thread.State.RUNNABLE
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q29</span><span class="qt">volatile and the Java Memory Model — visibility vs atomicity</span><span class="dif hard">Hard</span></summary>
+<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q44</span><span class="qt">volatile and the Java Memory Model — visibility vs atomicity</span><span class="dif hard">Hard</span></summary>
 <div class="ans">
 <pre><code><span class="kw">class</span> <span class="ty">Flag</span> {
     <span class="kw">private volatile boolean</span> running = <span class="kw">true</span>; <span class="cm">// guarantees VISIBILITY across threads</span>
@@ -745,13 +1393,13 @@ t.<span class="fn">getState</span>();  <span class="cm">// Thread.State.RUNNABLE
 <span class="cm">// volatile does NOT guarantee atomicity for compound actions:</span>
 <span class="kw">private volatile int</span> counter = <span class="cn">0</span>;
 counter++; <span class="cm">// NOT atomic! read-modify-write is 3 separate steps — still needs</span>
-           <span class="cm">// synchronized or an Atomic class (Q35) even though it's volatile</span></code></pre>
+           <span class="cm">// synchronized or an Atomic class (Q50) even though it's volatile</span></code></pre>
 <p>The <strong>Java Memory Model (JMM)</strong> defines when writes by one thread are guaranteed to become visible to another. Without synchronization, the compiler, CPU, and cache hierarchy are all free to reorder or locally cache reads/writes for performance — perfectly legal for single-threaded correctness, but dangerous across threads. <span class="ic">volatile</span> establishes a <strong>happens-before</strong> relationship: every write to a volatile field happens-before every subsequent read of it, and the JVM disables reordering around it. The same happens-before guarantee is also established by entering/exiting a <span class="ic">synchronized</span> block and by <span class="ic">Thread.start()</span>/<span class="ic">Thread.join()</span>.</p>
 <div class="note nblu"><strong>Rule of thumb:</strong> use <span class="ic">volatile</span> for a simple flag or a "publish this reference once" pattern. The moment you need to read-then-write based on the current value, you need real mutual exclusion (<span class="ic">synchronized</span> or an <span class="ic">Atomic*</span> class), because visibility alone doesn't prevent a race between two threads' read-modify-write sequences.</div>
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q30</span><span class="qt">wait()/notify()/notifyAll() vs modern concurrency utilities</span><span class="dif hard">Hard</span></summary>
+<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q45</span><span class="qt">wait()/notify()/notifyAll() vs modern concurrency utilities</span><span class="dif hard">Hard</span></summary>
 <div class="ans">
 <pre><code><span class="kw">class</span> <span class="ty">SharedBuffer</span> {
     <span class="kw">private final</span> <span class="ty">Object</span> lock = <span class="kw">new</span> <span class="ty">Object</span>();
@@ -778,7 +1426,7 @@ queue.<span class="fn">take</span>();        <span class="cm">// blocks internal
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q31</span><span class="qt">Deadlock — causes, a code example, and prevention</span><span class="dif hard">Hard</span></summary>
+<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q46</span><span class="qt">Deadlock — causes, a code example, and prevention</span><span class="dif hard">Hard</span></summary>
 <div class="ans">
 <pre><code><span class="ty">Object</span> lockA = <span class="kw">new</span> <span class="ty">Object</span>();
 <span class="ty">Object</span> lockB = <span class="kw">new</span> <span class="ty">Object</span>();
@@ -801,7 +1449,7 @@ queue.<span class="fn">take</span>();        <span class="cm">// blocks internal
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q32</span><span class="qt">ExecutorService and thread pools</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q47</span><span class="qt">ExecutorService and thread pools</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="ty">ExecutorService</span> fixed = <span class="ty">Executors</span>.<span class="fn">newFixedThreadPool</span>(<span class="cn">4</span>);  <span class="cm">// fixed thread count, unbounded queue — CPU-bound work with known parallelism</span>
 <span class="ty">ExecutorService</span> cached = <span class="ty">Executors</span>.<span class="fn">newCachedThreadPool</span>();  <span class="cm">// grows unbounded, reuses idle threads, 60s keep-alive — many short-lived tasks</span>
@@ -815,7 +1463,7 @@ fixed.<span class="fn">awaitTermination</span>(<span class="cn">10</span>, <span
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q33</span><span class="qt">java.util.concurrent essentials — CountDownLatch, Semaphore, ConcurrentHashMap</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--cyab);color:var(--cyal)">Q48</span><span class="qt">java.util.concurrent essentials — CountDownLatch, Semaphore, ConcurrentHashMap</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="ty">CountDownLatch</span> latch = <span class="kw">new</span> <span class="ty">CountDownLatch</span>(<span class="cn">3</span>);  <span class="cm">// wait for 3 events, then proceed — a ONE-TIME gate</span>
 <span class="kw">for</span> (<span class="kw">int</span> i = <span class="cn">0</span>; i &lt; <span class="cn">3</span>; i++) {
@@ -833,7 +1481,7 @@ map.<span class="fn">compute</span>(<span class="st">"key"</span>, (k, v) -&gt; 
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q34</span><span class="qt">ThreadLocal — use case and pitfalls</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--orab);color:var(--oral)">Q49</span><span class="qt">ThreadLocal — use case and pitfalls</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="kw">private static final</span> <span class="ty">ThreadLocal</span>&lt;<span class="ty">SimpleDateFormat</span>&gt; dateFormat =
     <span class="ty">ThreadLocal</span>.<span class="fn">withInitial</span>(() -&gt; <span class="kw">new</span> <span class="ty">SimpleDateFormat</span>(<span class="st">"yyyy-MM-dd"</span>)); <span class="cm">// SimpleDateFormat isn't thread-safe</span>
@@ -849,7 +1497,7 @@ dateFormat.<span class="fn">remove</span>();</code></pre>
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q35</span><span class="qt">Atomic classes (AtomicInteger) vs synchronized</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--grnb);color:var(--grnl)">Q50</span><span class="qt">Atomic classes (AtomicInteger) vs synchronized</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="kw">private</span> <span class="ty">AtomicInteger</span> counter = <span class="kw">new</span> <span class="ty">AtomicInteger</span>(<span class="cn">0</span>);
 
@@ -873,7 +1521,7 @@ dateFormat.<span class="fn">remove</span>();</code></pre>
 
 <h2>Java 8+ Functional Features</h2>
 
-<details><summary><span class="qn" style="background:var(--cyab);color:var(--cyal)">Q36</span><span class="qt">Functional interfaces — @FunctionalInterface and the core java.util.function types</span><span class="dif easy">Easy</span></summary>
+<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q51</span><span class="qt">Functional interfaces — @FunctionalInterface and the core java.util.function types</span><span class="dif easy">Easy</span></summary>
 <div class="ans">
 <pre><code><span class="an">@FunctionalInterface</span>
 <span class="kw">interface</span> <span class="ty">Calculator</span> {           <span class="cm">// exactly ONE abstract method — the compiler enforces this</span>
@@ -890,7 +1538,7 @@ dateFormat.<span class="fn">remove</span>();</code></pre>
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--orab);color:var(--oral)">Q37</span><span class="qt">Lambda expression syntax and the effectively-final capture rule</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q52</span><span class="qt">Lambda expression syntax and the effectively-final capture rule</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="kw">int</span> base = <span class="cn">10</span>;
 <span class="ty">Function</span>&lt;<span class="ty">Integer</span>, <span class="ty">Integer</span>&gt; addBase = x -&gt; x + base; <span class="cm">// 'base' is captured by value — must be effectively final</span>
@@ -906,7 +1554,7 @@ dateFormat.<span class="fn">remove</span>();</code></pre>
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--grnb);color:var(--grnl)">Q38</span><span class="qt">Method references — the four kinds</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q53</span><span class="qt">Method references — the four kinds</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="cm">// 1. Static method reference</span>
 <span class="ty">Function</span>&lt;<span class="ty">String</span>, <span class="ty">Integer</span>&gt; parse = <span class="ty">Integer</span>::parseInt;
@@ -923,7 +1571,7 @@ dateFormat.<span class="fn">remove</span>();</code></pre>
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q39</span><span class="qt">Stream API basics — pipeline, laziness, intermediate vs terminal operations</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q54</span><span class="qt">Stream API basics — pipeline, laziness, intermediate vs terminal operations</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="ty">List</span>&lt;<span class="ty">String</span>&gt; names = <span class="ty">List</span>.<span class="fn">of</span>(<span class="st">"Alice"</span>, <span class="st">"Bob"</span>, <span class="st">"Charlie"</span>, <span class="st">"Dave"</span>);
 
@@ -941,7 +1589,7 @@ dateFormat.<span class="fn">remove</span>();</code></pre>
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q40</span><span class="qt">Optional, and the java.time API vs legacy Date/Calendar</span><span class="dif easy">Easy</span></summary>
+<details><summary><span class="qn" style="background:var(--cyab);color:var(--cyal)">Q55</span><span class="qt">Optional, and the java.time API vs legacy Date/Calendar</span><span class="dif easy">Easy</span></summary>
 <div class="ans">
 <pre><code><span class="ty">Optional</span>&lt;<span class="ty">String</span>&gt; maybeName = <span class="ty">Optional</span>.<span class="fn">ofNullable</span>(<span class="fn">getName</span>());
 <span class="ty">String</span> name = maybeName.<span class="fn">orElse</span>(<span class="st">"Unknown"</span>);          <span class="cm">// default when empty</span>
@@ -962,7 +1610,7 @@ maybeName.<span class="fn">ifPresent</span>(n -&gt; <span class="ty">System</spa
 
 <h2>JVM &amp; Memory</h2>
 
-<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q41</span><span class="qt">JVM architecture, and how it relates to ART on Android</span><span class="dif hard">Hard</span></summary>
+<details><summary><span class="qn" style="background:var(--orab);color:var(--oral)">Q56</span><span class="qt">JVM architecture, and how it relates to ART on Android</span><span class="dif hard">Hard</span></summary>
 <div class="ans">
 <ul>
 <li><strong>Class Loader Subsystem:</strong> loads <span class="ic">.class</span> files via Bootstrap → Extension/Platform → Application class loaders (delegation model), then links (verify, prepare, resolve) and initializes each class.</li>
@@ -973,7 +1621,7 @@ maybeName.<span class="fn">ifPresent</span>(n -&gt; <span class="ty">System</spa
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q42</span><span class="qt">Stack vs heap memory</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--grnb);color:var(--grnl)">Q57</span><span class="qt">Stack vs heap memory</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="kw">void</span> <span class="fn">method</span>() {
     <span class="kw">int</span> localVar = <span class="cn">5</span>;               <span class="cm">// primitive -&gt; lives on the STACK frame for this call</span>
@@ -988,7 +1636,7 @@ maybeName.<span class="fn">ifPresent</span>(n -&gt; <span class="ty">System</spa
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q43</span><span class="qt">Garbage collection basics — generational GC and common algorithms</span><span class="dif hard">Hard</span></summary>
+<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q58</span><span class="qt">Garbage collection basics — generational GC and common algorithms</span><span class="dif hard">Hard</span></summary>
 <div class="ans">
 <p>GC is built on the <strong>generational hypothesis</strong>: most objects die young, so it's cheaper to collect young objects frequently and cheaply, and old objects rarely.</p>
 <ul>
@@ -999,7 +1647,7 @@ maybeName.<span class="fn">ifPresent</span>(n -&gt; <span class="ty">System</spa
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q44</span><span class="qt">Common memory leak patterns in Java</span><span class="dif hard">Hard</span></summary>
+<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q59</span><span class="qt">Common memory leak patterns in Java</span><span class="dif hard">Hard</span></summary>
 <div class="ans">
 <pre><code><span class="cm">// 1. Static reference holding on to objects forever</span>
 <span class="kw">class</span> <span class="ty">Cache</span> {
@@ -1009,7 +1657,7 @@ maybeName.<span class="fn">ifPresent</span>(n -&gt; <span class="ty">System</spa
 
 <span class="cm">// 2. Unclosed resources</span>
 <span class="ty">FileInputStream</span> fis = <span class="kw">new</span> <span class="ty">FileInputStream</span>(<span class="st">"file.txt"</span>);
-<span class="cm">// if an exception is thrown before fis.close(), the file handle leaks — FIX: try-with-resources (Q16)</span>
+<span class="cm">// if an exception is thrown before fis.close(), the file handle leaks — FIX: try-with-resources (Q31)</span>
 
 <span class="cm">// 3. A non-static inner class holding an implicit reference to its outer instance</span>
 <span class="kw">class</span> <span class="ty">Activity</span> {
@@ -1027,7 +1675,7 @@ maybeName.<span class="fn">ifPresent</span>(n -&gt; <span class="ty">System</spa
 
 <h2>Advanced Java &amp; Design Patterns</h2>
 
-<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q45</span><span class="qt">Inner class types — static nested, inner, local, and anonymous</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q60</span><span class="qt">Inner class types — static nested, inner, local, and anonymous</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="kw">class</span> <span class="ty">Outer</span> {
     <span class="kw">int</span> outerField = <span class="cn">10</span>;
@@ -1060,7 +1708,7 @@ maybeName.<span class="fn">ifPresent</span>(n -&gt; <span class="ty">System</spa
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q46</span><span class="qt">Enum in Java — fields, methods, constructors, EnumMap and EnumSet</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q61</span><span class="qt">Enum in Java — fields, methods, constructors, EnumMap and EnumSet</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="kw">enum</span> <span class="ty">Planet</span> {
     MERCURY(<span class="cn">3.3e23</span>, <span class="cn">2.4e6</span>), EARTH(<span class="cn">5.97e24</span>, <span class="cn">6.4e6</span>); <span class="cm">// constants call the constructor below</span>
@@ -1084,7 +1732,7 @@ maybeName.<span class="fn">ifPresent</span>(n -&gt; <span class="ty">System</spa
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q47</span><span class="qt">Annotations basics, and how reflection uses them</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--cyab);color:var(--cyal)">Q62</span><span class="qt">Annotations basics, and how reflection uses them</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="an">@Retention</span>(RetentionPolicy.RUNTIME)    <span class="cm">// must be RUNTIME to be readable via reflection</span>
 <span class="an">@Target</span>(ElementType.METHOD)
@@ -1107,7 +1755,7 @@ maybeName.<span class="fn">ifPresent</span>(n -&gt; <span class="ty">System</spa
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q48</span><span class="qt">Serializable and serialVersionUID</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--orab);color:var(--oral)">Q63</span><span class="qt">Serializable and serialVersionUID</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="kw">class</span> <span class="ty">User</span> <span class="kw">implements</span> <span class="ty">Serializable</span> {
     <span class="kw">private static final long</span> serialVersionUID = <span class="cn">1L</span>; <span class="cm">// explicit version — pins compatibility across builds</span>
@@ -1123,7 +1771,7 @@ maybeName.<span class="fn">ifPresent</span>(n -&gt; <span class="ty">System</spa
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q49</span><span class="qt">Records as immutable data carriers (vs Kotlin data classes), and switch expressions</span><span class="dif med">Medium</span></summary>
+<details><summary><span class="qn" style="background:var(--grnb);color:var(--grnl)">Q64</span><span class="qt">Records as immutable data carriers (vs Kotlin data classes), and switch expressions</span><span class="dif med">Medium</span></summary>
 <div class="ans">
 <pre><code><span class="cm">// Record (Java 16+ stable): auto-generates constructor, accessors, equals/hashCode/toString</span>
 <span class="kw">record</span> <span class="ty">Point</span>(<span class="kw">int</span> x, <span class="kw">int</span> y) { }               <span class="cm">// immutable by construction — fields are implicitly final</span>
@@ -1152,7 +1800,7 @@ p.<span class="fn">equals</span>(<span class="kw">new</span> <span class="ty">Po
 </div>
 </details>
 
-<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q50</span><span class="qt">Singleton pattern implementations, and the Builder pattern</span><span class="dif hard">Hard</span></summary>
+<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q65</span><span class="qt">Singleton pattern implementations, and the Builder pattern</span><span class="dif hard">Hard</span></summary>
 <div class="ans">
 <pre><code><span class="cm">// 1. Eager initialization — instance created at class-load time; thread-safe by the JVM's class-init</span>
 <span class="cm">// guarantee, but wastes memory/startup time if the instance is never actually used</span>

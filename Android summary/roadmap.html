@@ -54,7 +54,7 @@ a{color:var(--grnl)}
 </style>
 </head>
 <body>
-<nav><div class="nav-inner"><a href="roadmap.html" class="active">🗺 Roadmap</a><a href="android_core.html">📱 Android Core</a><a href="android_advanced.html">🔥 Advanced</a><a href="architecture.html">🏛 Architecture</a><a href="kotlin.html">🎯 Kotlin</a><a href="coroutines_flow.html">⚡ Coroutines</a><a href="compose.html">🎨 Compose</a><a href="dependency_injection.html">💉 DI</a><a href="networking_storage.html">🌐 Net & Storage</a><a href="testing.html">🧪 Testing</a><a href="system_design.html">🏗 System Design</a><a href="dsa_google.html">🧩 DSA</a></div></nav>
+<nav><div class="nav-inner"><a href="roadmap.html" class="active">🗺 Roadmap</a><a href="android_core.html">📱 Android Core</a><a href="android_advanced.html">🔥 Advanced</a><a href="architecture.html">🏛 Architecture</a><a href="kotlin.html">🎯 Kotlin</a><a href="java.html">☕ Java</a><a href="coroutines_flow.html">⚡ Coroutines</a><a href="compose.html">🎨 Compose</a><a href="dependency_injection.html">💉 DI</a><a href="networking_storage.html">🌐 Net & Storage</a><a href="testing.html">🧪 Testing</a><a href="system_design.html">🏗 System Design</a><a href="dsa_google.html">🧩 DSA</a></div></nav>
 <main>
 <h1>🗺 Android Interview Roadmap</h1>
 <p class="sub">Targeting Google, Meta, FAANG-level Android roles. 4–6 month structured plan from fundamentals to system design.</p>
@@ -108,6 +108,29 @@ a{color:var(--grnl)}
 </g>
 </svg>
 </div>
+
+<details open>
+<summary><span class="qn" style="background:var(--cyab);color:var(--cyal)">M0</span><span class="qt">Java + Kotlin Foundations: how code runs and behaves</span><span class="dif easy">Week 0</span></summary>
+<div class="ans">
+<p>Before lifecycle and architecture, make sure you can predict exactly what a snippet prints. Interviewers open with these, and every later topic builds on them.</p>
+<p><strong>Java (2–3 days):</strong> <a href="java.html#start-here">Start Here</a> → <a href="java.html#java-basics">Types, Operators &amp; Control Flow</a> → <a href="java.html#predict-output">Predict the Output</a></p>
+<ul>
+<li>javac → bytecode → JVM (class loading, JIT) and the dex/ART path on Android</li>
+<li>Primitives vs references, default values, stack vs heap, pass-by-value</li>
+<li>Casting &amp; promotion, integer overflow/division, floating-point precision</li>
+<li>i++ vs ++i, short-circuiting, switch fall-through, labeled break, arrays</li>
+<li>Initialization order, field/static hiding, overload resolution</li>
+</ul>
+<p><strong>Kotlin (2–3 days):</strong> <a href="kotlin.html#start-here">Start Here</a> → Kotlin Basics → <a href="kotlin.html#predict-output">Predict the Output</a></p>
+<ul>
+<li>What kotlinc generates (MainKt, null-check intrinsics), Java ↔ Kotlin syntax map</li>
+<li>val vs var, everything-is-an-expression, parameters are val</li>
+<li>No implicit widening, Int vs Int? boxing, return inside forEach</li>
+<li>Final-by-default classes, init order, where NPEs still happen, data class pitfalls</li>
+</ul>
+<p><strong>Self-test:</strong> run each "Predict the Output" snippet in your head, then check the Output box.</p>
+</div>
+</details>
 
 <details open>
 <summary><span class="qn" style="background:var(--grnb);color:var(--grnl)">M1</span><span class="qt">Android Core + Kotlin Fundamentals</span><span class="dif easy">Start here</span></summary>
@@ -239,7 +262,8 @@ a{color:var(--grnl)}
 <div class="gc"><h4><a href="android_core.html">📱 Android Core</a></h4><p>Activity, Fragment, Intent, Service, BroadcastReceiver, Context, Lifecycle, Handler/Looper, ANR</p></div>
 <div class="gc"><h4><a href="android_advanced.html">🔥 Advanced Android</a></h4><p>Custom Views, RecyclerView, Performance, Memory, WorkManager, Paging, Animations</p></div>
 <div class="gc"><h4><a href="architecture.html">🏛 Architecture</a></h4><p>MVVM, MVI, Clean Architecture, Repository, UseCase, ViewModel, State management</p></div>
-<div class="gc"><h4><a href="kotlin.html">🎯 Kotlin</a></h4><p>Extension functions, Sealed classes, Generics, Delegation, Inline, DSL building</p></div>
+<div class="gc"><h4><a href="kotlin.html">🎯 Kotlin</a></h4><p>Basics &amp; predict-the-output, then Extension functions, Sealed classes, Generics, Delegation, Inline, DSL building</p></div>
+<div class="gc"><h4><a href="java.html">☕ Java</a></h4><p>How Java runs, types &amp; operators, OOP puzzles, Collections, Concurrency, JVM &amp; memory</p></div>
 <div class="gc"><h4><a href="coroutines_flow.html">⚡ Coroutines &amp; Flow</a></h4><p>Dispatchers, Structured concurrency, Flow, StateFlow, SharedFlow, Exception handling</p></div>
 <div class="gc"><h4><a href="compose.html">🎨 Jetpack Compose</a></h4><p>Recomposition, State, Side effects, Navigation, Layouts, Canvas, Animations</p></div>
 <div class="gc"><h4><a href="dependency_injection.html">💉 DI</a></h4><p>Hilt, Dagger 2, Koin — modules, components, scopes, qualifiers</p></div>
