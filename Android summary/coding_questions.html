@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Coding Questions — Interview Q&amp;A</title>
+<style>:root{--bg:#06090e;--s1:#0a0f18;--s2:#0e1520;--s3:#131d2a;--b1:#182030;--b2:#1e2c3e;--txt:#cce0ee;--muted:#4e6878;--grn:#10a060;--grnb:#031508;--grnl:#44d890;--blu:#1e60d8;--blub:#040e28;--blul:#6aaeff;--pur:#6848b8;--purb:#0f0828;--purl:#b090ff;--amb:#c09010;--ambb:#201500;--ambl:#f0c040;--red:#b03030;--redb:#1e0808;--redl:#f07070;--cya:#0e8898;--cyab:#041418;--cyal:#40d8e8;--ora:#c06020;--orab:#201008;--oral:#f0a060}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',system-ui,sans-serif;font-size:13px;line-height:1.6;min-height:100vh}
+nav{background:var(--s1);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:100;overflow-x:auto}
+.nav-inner{display:flex;align-items:center;padding:0 12px;gap:0;min-width:max-content}
+nav a{color:var(--muted);text-decoration:none;font-size:11px;font-weight:500;padding:12px 9px;border-bottom:2px solid transparent;white-space:nowrap;display:block}
+nav a:hover{color:var(--txt)}
+nav a.active{color:var(--grnl);border-bottom-color:var(--grn)}
+main{max-width:980px;padding:28px 20px 80px;margin:0 auto}
+h1{font-size:20px;font-weight:700;margin-bottom:6px;letter-spacing:-.02em}
+.sub{font-size:12px;color:var(--muted);margin-bottom:24px;line-height:1.6}
+h2{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:24px 0 10px;display:flex;align-items:center;gap:8px}
+h2::after{content:'';flex:1;height:1px;background:var(--b2)}
+details{border-radius:9px;border:1px solid var(--b2);background:var(--s1);margin-bottom:7px;overflow:hidden}
+details[open]{border-color:#2e4458}
+summary{padding:12px 15px;cursor:pointer;display:flex;align-items:center;gap:9px;list-style:none;font-weight:500;font-size:13px;user-select:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:'\203A';font-size:16px;color:var(--muted);transition:.2s;flex-shrink:0;width:14px;display:inline-block}
+details[open] summary::before{transform:rotate(90deg);color:var(--grnl)}
+.qn{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;flex-shrink:0;font-family:monospace}
+.qt{flex:1}
+.dif{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;border:1px solid;flex-shrink:0;letter-spacing:.06em;text-transform:uppercase}
+.easy{background:var(--grnb);color:var(--grnl);border-color:var(--grn)}
+.med{background:var(--ambb);color:var(--ambl);border-color:var(--amb)}
+.hard{background:var(--redb);color:var(--redl);border-color:var(--red)}
+.goog{background:var(--purb);color:var(--purl);border-color:var(--pur)}
+.ans{padding:0 15px 14px;border-top:1px solid var(--b2)}
+.ans p{font-size:12px;color:var(--muted);line-height:1.7;margin:10px 0 0}
+.ans p strong{color:var(--txt)}
+.ans ul,.ans ol{padding-left:18px;font-size:12px;color:var(--muted);line-height:1.85;margin:8px 0}
+.ans li strong{color:var(--txt)}
+pre{background:#070d14;border:1px solid var(--b2);border-radius:7px;padding:12px 14px;overflow-x:auto;margin:10px 0;font-size:11px;line-height:1.7;color:#a8c8e8}
+code{font-family:'JetBrains Mono','Fira Mono',monospace;font-size:11px}
+.kw{color:#79b8ff}.cn{color:#44d890}.st{color:#f0a060}.cm{color:#4e6878}.fn{color:#40d8e8}.an{color:#f0c040}.ty{color:#b090ff}
+.note{border-radius:7px;border:1px solid;padding:9px 12px;font-size:11px;line-height:1.6;margin:10px 0}
+.ngrn{background:var(--grnb);border-color:var(--grn);color:var(--grnl)}
+.namb{background:var(--ambb);border-color:var(--amb);color:var(--ambl)}
+.nred{background:var(--redb);border-color:var(--red);color:var(--redl)}
+.nblu{background:var(--blub);border-color:var(--blu);color:var(--blul)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0}
+@media(max-width:680px){.g2,.g3{grid-template-columns:1fr}}
+.gc{background:var(--s2);border:1px solid var(--b2);border-radius:7px;padding:12px}
+.gc h4{font-size:11px;font-weight:700;margin-bottom:6px}
+.gc p,.gc li{font-size:11px;color:var(--muted);line-height:1.6}
+.ic{background:var(--s3);border:1px solid var(--b2);border-radius:4px;padding:1px 6px;font-family:monospace;font-size:11px;color:var(--blul)}
+a{color:var(--grnl)}
+pre.out{border-color:var(--grn);color:var(--grnl);margin-top:-4px}
+pre.out::before{content:'Output';display:block;font-family:'Inter',system-ui,sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+p.lbl{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:14px 0 -4px}
+pre.pseudo{background:var(--s2);border-style:dashed}
+.tbl{overflow-x:auto;margin:10px 0}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th,td{border:1px solid var(--b2);padding:6px 9px;text-align:left;white-space:nowrap}
+th{background:var(--s2);color:var(--txt);font-weight:600}
+td{color:var(--muted)}
+.gc a{text-decoration:none}
+</style>
+</head>
+<body>
+<nav><div class="nav-inner"><a href="roadmap.html">🗺 Roadmap</a><a href="android_core.html">📱 Android Core</a><a href="android_advanced.html">🔥 Advanced</a><a href="architecture.html">🏛 Architecture</a><a href="kotlin.html">🎯 Kotlin</a><a href="java.html">☕ Java</a><a href="coding_questions.html" class="active">💻 Coding</a><a href="coroutines_flow.html">⚡ Coroutines</a><a href="compose.html">🎨 Compose</a><a href="dependency_injection.html">💉 DI</a><a href="networking_storage.html">🌐 Net &amp; Storage</a><a href="testing.html">🧪 Testing</a><a href="system_design.html">🏗 System Design</a><a href="dsa_google.html">🧩 DSA</a></div></nav>
+<main>
+<h1>💻 Coding Questions — Patterns, Sorting &amp; Class Design</h1>
+<p class="sub">20 hands-on coding questions asked in Android and Java/Kotlin rounds: print patterns, implement the classic sorts, design classes and interfaces, build data structures, and code the common design patterns. Each one has the problem, the approach, pseudocode, a runnable Kotlin solution with its real output, complexity, and the follow-ups interviewers ask next.</p>
+
+<div class="g3">
+<div class="gc"><h4><a href="#patterns">Pattern Printing</a></h4><p>4 questions · Print a right-angled triangle and an inverted triangle of stars · Print a centered pyramid · Print a diamond · Number patterns</p></div>
+<div class="gc"><h4><a href="#sorting">Sorting Algorithms</a></h4><p>6 questions · Bubble sort with early exit · Selection sort · Insertion sort · Merge sort · Quick sort · Comparator vs Comparable</p></div>
+<div class="gc"><h4><a href="#class-design">Interfaces &amp; Single-Class Design</a></h4><p>3 questions · Design a Shape interface hierarchy with polymorphic area() · Design a thread-safe BankAccount class · Implement a thread-safe Singleton</p></div>
+<div class="gc"><h4><a href="#data-structures">Build a Data-Structure Class</a></h4><p>4 questions · Implement a generic · Min Stack · Implement a Queue using two Stacks · Design an LRU Cache with O(1) get and put</p></div>
+<div class="gc"><h4><a href="#patterns-in-code">Design Patterns in Code</a></h4><p>3 questions · Observer pattern · Strategy pattern · Design a rate limiter class</p></div>
+<div class="gc"><h4 style="color:var(--ambl)">How to practise</h4><p>Read the problem, write your own pseudocode, code it in Kotlin or Java, and only then open the answer and compare. Every output shown here comes from actually running the code.</p></div>
+</div>
+
+<h2 id="patterns">Pattern Printing</h2>
+<p class="sub" style="margin-bottom:12px">Nested-loop warm-ups. The trick is always the same: work out, <strong>for row i</strong>, how many spaces and how many symbols to print, as a formula in <span class="ic">i</span> and <span class="ic">n</span>.</p>
+
+<details><summary><span class="qn" style="background:var(--grnb);color:var(--grnl)">Q1</span><span class="qt">Print a right-angled triangle and an inverted triangle of stars</span><span class="dif easy">Easy</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Given <span class="ic">n</span>, print <span class="ic">n</span> rows where row <span class="ic">i</span> has <span class="ic">i</span> stars, then the same shape upside down.</p>
+<p><strong>Approach.</strong> The outer loop picks the row; the inner loop prints as many stars as the row number. Reversing the outer loop (<span class="ic">downTo</span>) flips the shape without touching the body.</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="kw">FUNCTION</span> <span class="fn">rightTriangle</span>(n)
+    <span class="kw">FOR</span> row <span class="kw">FROM</span> <span class="cn">1</span> <span class="kw">TO</span> n              <span class="cm">// row i prints i stars</span>
+        <span class="kw">FOR</span> col <span class="kw">FROM</span> <span class="cn">1</span> <span class="kw">TO</span> row
+            <span class="kw">PRINT</span> <span class="st">"*"</span>
+        <span class="kw">PRINT</span> newline
+
+<span class="kw">FUNCTION</span> <span class="fn">invertedTriangle</span>(n)
+    <span class="kw">FOR</span> row <span class="kw">FROM</span> n <span class="kw">DOWN</span> <span class="kw">TO</span> <span class="cn">1</span>         <span class="cm">// same body, loop runs backwards</span>
+        <span class="kw">FOR</span> col <span class="kw">FROM</span> <span class="cn">1</span> <span class="kw">TO</span> row
+            <span class="kw">PRINT</span> <span class="st">"*"</span>
+        <span class="kw">PRINT</span> newline</code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">fun</span> <span class="fn">rightTriangle</span>(n: <span class="ty">Int</span>) {
+    <span class="kw">for</span> (row <span class="kw">in</span> <span class="cn">1</span>..n) {
+        <span class="kw">for</span> (col <span class="kw">in</span> <span class="cn">1</span>..row) <span class="fn">print</span>(<span class="st">"*"</span>)      <span class="cm">// inner loop bound depends on the outer variable</span>
+        <span class="fn">println</span>()
+    }
+}
+
+<span class="kw">fun</span> <span class="fn">invertedTriangle</span>(n: <span class="ty">Int</span>) {
+    <span class="kw">for</span> (row <span class="kw">in</span> n downTo <span class="cn">1</span>) {
+        <span class="kw">for</span> (col <span class="kw">in</span> <span class="cn">1</span>..row) <span class="fn">print</span>(<span class="st">"*"</span>)
+        <span class="fn">println</span>()
+    }
+}
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="fn">rightTriangle</span>(<span class="cn">4</span>)
+    <span class="fn">println</span>(<span class="st">"--"</span>)
+    <span class="fn">invertedTriangle</span>(<span class="cn">4</span>)
+}</code></pre>
+<pre class="out"><code>*
+**
+***
+****
+--
+****
+***
+**
+*</code></pre>
+<div class="note nblu"><strong>Time:</strong> O(n²) stars printed · <strong>Space:</strong> O(1)</div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li>Print numbers instead of stars (<span class="ic">1</span>, <span class="ic">1 2</span>, <span class="ic">1 2 3</span>...) by printing <span class="ic">col</span> instead of <span class="ic">*</span>.</li>
+<li>Right-align the triangle by printing <span class="ic">n - row</span> spaces before the stars.</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q2</span><span class="qt">Print a centered pyramid, and a hollow pyramid</span><span class="dif easy">Easy</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Print a pyramid of height <span class="ic">n</span> centered on a fixed width; then print only its outline.</p>
+<p><strong>Approach.</strong> Row <span class="ic">i</span> needs <strong><span class="ic">n - i</span> leading spaces</strong> and <strong><span class="ic">2i - 1</span> stars</strong> (1, 3, 5...). For the hollow version, print a star only on the first column, the last column, or the base row, and a space everywhere else.</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="kw">FUNCTION</span> <span class="fn">pyramid</span>(n)
+    <span class="kw">FOR</span> row <span class="kw">FROM</span> <span class="cn">1</span> <span class="kw">TO</span> n
+        <span class="kw">FOR</span> s <span class="kw">FROM</span> <span class="cn">1</span> <span class="kw">TO</span> n - row          <span class="cm">// leading spaces shrink: n-1, n-2, ... 0</span>
+            <span class="kw">PRINT</span> <span class="st">" "</span>
+        <span class="kw">FOR</span> k <span class="kw">FROM</span> <span class="cn">1</span> <span class="kw">TO</span> <span class="cn">2</span> * row - <span class="cn">1</span>      <span class="cm">// stars grow by 2: 1, 3, 5, ...</span>
+            <span class="kw">PRINT</span> <span class="st">"*"</span>
+        <span class="kw">PRINT</span> newline</code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">fun</span> <span class="fn">pyramid</span>(n: <span class="ty">Int</span>) {
+    <span class="kw">for</span> (row <span class="kw">in</span> <span class="cn">1</span>..n) {
+        <span class="kw">for</span> (s <span class="kw">in</span> <span class="cn">1</span>..n - row) <span class="fn">print</span>(<span class="st">" "</span>)         <span class="cm">// empty range when row == n → no spaces</span>
+        <span class="kw">for</span> (k <span class="kw">in</span> <span class="cn">1</span>..<span class="cn">2</span> * row - <span class="cn">1</span>) <span class="fn">print</span>(<span class="st">"*"</span>)
+        <span class="fn">println</span>()
+    }
+}
+
+<span class="kw">fun</span> <span class="fn">hollowPyramid</span>(n: <span class="ty">Int</span>) {
+    <span class="kw">for</span> (row <span class="kw">in</span> <span class="cn">1</span>..n) {
+        <span class="fn">print</span>(<span class="st">" "</span>.<span class="fn">repeat</span>(n - row))
+        <span class="kw">for</span> (k <span class="kw">in</span> <span class="cn">1</span>..<span class="cn">2</span> * row - <span class="cn">1</span>) {
+            <span class="kw">val</span> edge = k == <span class="cn">1</span> || k == <span class="cn">2</span> * row - <span class="cn">1</span> || row == n  <span class="cm">// first/last column or base row</span>
+            <span class="fn">print</span>(<span class="kw">if</span> (edge) <span class="st">"*"</span> <span class="kw">else</span> <span class="st">" "</span>)
+        }
+        <span class="fn">println</span>()
+    }
+}
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="fn">pyramid</span>(<span class="cn">4</span>)
+    <span class="fn">println</span>(<span class="st">"--"</span>)
+    <span class="fn">hollowPyramid</span>(<span class="cn">4</span>)
+}</code></pre>
+<pre class="out"><code>   *
+  ***
+ *****
+*******
+--
+   *
+  * *
+ *   *
+*******</code></pre>
+<div class="note nblu"><strong>Time:</strong> O(n²) · <strong>Space:</strong> O(1)</div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li>Inverted pyramid: run the row loop from <span class="ic">n</span> down to 1.</li>
+<li>Why <span class="ic">2i - 1</span>? The width grows by one on each side per row.</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q3</span><span class="qt">Print a diamond</span><span class="dif easy">Easy</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Print a diamond whose widest row is <span class="ic">2n - 1</span> stars.</p>
+<p><strong>Approach.</strong> A diamond is a pyramid (<span class="ic">1..n</span>) followed by the same pyramid reversed (<span class="ic">n-1 downTo 1</span>). Start the bottom half at <span class="ic">n - 1</span> so the middle row isn't printed twice. Extracting <span class="ic">printRow(n, row)</span> keeps both halves to one line each.</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="kw">FUNCTION</span> <span class="fn">diamond</span>(n)
+    <span class="kw">FOR</span> row <span class="kw">FROM</span> <span class="cn">1</span> <span class="kw">TO</span> n                  <span class="cm">// top half = pyramid</span>
+        <span class="fn">printRow</span>(n, row)
+    <span class="kw">FOR</span> row <span class="kw">FROM</span> n - <span class="cn">1</span> <span class="kw">DOWN</span> <span class="kw">TO</span> <span class="cn">1</span>         <span class="cm">// bottom half = pyramid reversed, without repeating the middle</span>
+        <span class="fn">printRow</span>(n, row)
+
+<span class="kw">FUNCTION</span> <span class="fn">printRow</span>(n, row)
+    <span class="kw">PRINT</span> (n - row) spaces, then (<span class="cn">2</span> * row - <span class="cn">1</span>) stars, then newline</code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">fun</span> <span class="fn">printRow</span>(n: <span class="ty">Int</span>, row: <span class="ty">Int</span>) = <span class="fn">println</span>(<span class="st">" "</span>.<span class="fn">repeat</span>(n - row) + <span class="st">"*"</span>.<span class="fn">repeat</span>(<span class="cn">2</span> * row - <span class="cn">1</span>))
+
+<span class="kw">fun</span> <span class="fn">diamond</span>(n: <span class="ty">Int</span>) {
+    <span class="kw">for</span> (row <span class="kw">in</span> <span class="cn">1</span>..n) <span class="fn">printRow</span>(n, row)
+    <span class="kw">for</span> (row <span class="kw">in</span> n - <span class="cn">1</span> downTo <span class="cn">1</span>) <span class="fn">printRow</span>(n, row)
+}
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="fn">diamond</span>(<span class="cn">4</span>)
+}</code></pre>
+<pre class="out"><code>   *
+  ***
+ *****
+*******
+ *****
+  ***
+   *</code></pre>
+<div class="note nblu"><strong>Time:</strong> O(n²) · <strong>Space:</strong> O(1)</div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li>Hollow diamond: reuse the edge test from the hollow pyramid.</li>
+<li>Interviewers like seeing you reuse a helper instead of copy-pasting two nearly identical loops.</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q4</span><span class="qt">Number patterns: Floyd's triangle and Pascal's triangle</span><span class="dif med">Medium</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Print Floyd's triangle (consecutive numbers, row <span class="ic">i</span> has <span class="ic">i</span> of them) and the first <span class="ic">n</span> rows of Pascal's triangle.</p>
+<p><strong>Approach.</strong> Floyd: keep <strong>one counter outside both loops</strong> and increment it on every print. Pascal: every row starts and ends with 1, and each inner value is the <strong>sum of the two values above it</strong>. Build each row from the previous one; <span class="ic">zipWithNext</span> gives you exactly those adjacent pairs.</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="kw">FUNCTION</span> <span class="fn">floyd</span>(n)
+    counter = <span class="cn">1</span>
+    <span class="kw">FOR</span> row <span class="kw">FROM</span> <span class="cn">1</span> <span class="kw">TO</span> n
+        <span class="kw">FOR</span> col <span class="kw">FROM</span> <span class="cn">1</span> <span class="kw">TO</span> row
+            <span class="kw">PRINT</span> counter; counter = counter + <span class="cn">1</span>
+        <span class="kw">PRINT</span> newline
+
+<span class="kw">FUNCTION</span> <span class="fn">pascal</span>(n)
+    row = [<span class="cn">1</span>]
+    <span class="kw">REPEAT</span> n <span class="kw">TIMES</span>
+        <span class="kw">PRINT</span> row
+        next = [<span class="cn">1</span>]
+        <span class="kw">FOR</span> i <span class="kw">FROM</span> <span class="cn">1</span> <span class="kw">TO</span> <span class="fn">size</span>(row) - <span class="cn">1</span>
+            <span class="kw">APPEND</span> row[i - <span class="cn">1</span>] + row[i] <span class="kw">TO</span> next   <span class="cm">// each inner value = sum of the two above it</span>
+        <span class="kw">APPEND</span> <span class="cn">1</span> <span class="kw">TO</span> next
+        row = next</code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">fun</span> <span class="fn">floyd</span>(n: <span class="ty">Int</span>) {
+    <span class="kw">var</span> counter = <span class="cn">1</span>
+    <span class="kw">for</span> (row <span class="kw">in</span> <span class="cn">1</span>..n) {
+        <span class="fn">println</span>((<span class="cn">1</span>..row).<span class="fn">joinToString</span>(<span class="st">" "</span>) { (counter++).<span class="fn">toString</span>() })
+    }
+}
+
+<span class="kw">fun</span> <span class="fn">pascal</span>(n: <span class="ty">Int</span>) {
+    <span class="kw">var</span> row = <span class="fn">listOf</span>(<span class="cn">1</span>)
+    <span class="fn">repeat</span>(n) {
+        <span class="fn">println</span>(<span class="st">" "</span>.<span class="fn">repeat</span>(n - it - <span class="cn">1</span>) + row.<span class="fn">joinToString</span>(<span class="st">" "</span>))   <span class="cm">// indent to centre it</span>
+        row = <span class="fn">listOf</span>(<span class="cn">1</span>) + row.zipWithNext { a, b -&gt; a + b } + <span class="fn">listOf</span>(<span class="cn">1</span>)
+    }
+}
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="fn">floyd</span>(<span class="cn">4</span>)
+    <span class="fn">println</span>(<span class="st">"--"</span>)
+    <span class="fn">pascal</span>(<span class="cn">5</span>)
+}</code></pre>
+<pre class="out"><code>1
+2 3
+4 5 6
+7 8 9 10
+--
+    1
+   1 1
+  1 2 1
+ 1 3 3 1
+1 4 6 4 1</code></pre>
+<div class="note nblu"><strong>Time:</strong> O(n²) · <strong>Space:</strong> O(n) for the current row</div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li>Pascal value at (row, col) directly: <span class="ic">C(row, col) = C(row, col-1) * (row - col + 1) / col</span>.</li>
+<li>Use <span class="ic">joinToString(" ")</span> instead of printing a space after every number, which avoids trailing whitespace that online judges reject.</li>
+</ul>
+</div>
+</details>
+
+<h2 id="sorting">Sorting Algorithms</h2>
+<p class="sub" style="margin-bottom:12px">Expect to write at least one O(n²) sort and one O(n log n) sort from memory, trace it on a small array, and state its complexity and stability.</p>
+
+<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q5</span><span class="qt">Bubble sort with early exit</span><span class="dif easy">Easy</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Sort an integer array in place using bubble sort, and stop as soon as the array is sorted.</p>
+<p><strong>Approach.</strong> Repeatedly compare <strong>adjacent</strong> pairs and swap them if they are out of order. After pass <span class="ic">k</span>, the largest <span class="ic">k</span> items have "bubbled" to the end, so the inner loop can shrink. If a whole pass makes no swap, the array is sorted. That flag is what makes the best case O(n).</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="kw">FUNCTION</span> <span class="fn">bubbleSort</span>(arr)
+    n = <span class="fn">length</span>(arr)
+    <span class="kw">FOR</span> pass <span class="kw">FROM</span> <span class="cn">0</span> <span class="kw">TO</span> n - <span class="cn">2</span>
+        swapped = false
+        <span class="kw">FOR</span> j <span class="kw">FROM</span> <span class="cn">0</span> <span class="kw">TO</span> n - <span class="cn">2</span> - pass         <span class="cm">// the last `pass` items are already in place</span>
+            <span class="kw">IF</span> arr[j] &gt; arr[j + <span class="cn">1</span>] <span class="kw">THEN</span>
+                <span class="kw">SWAP</span> arr[j], arr[j + <span class="cn">1</span>]
+                swapped = true
+        <span class="kw">IF</span> <span class="kw">NOT</span> swapped <span class="kw">THEN</span> <span class="kw">BREAK</span>            <span class="cm">// no swaps → sorted → best case O(n)</span></code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">fun</span> <span class="ty">IntArray</span>.<span class="fn">swap</span>(a: <span class="ty">Int</span>, b: <span class="ty">Int</span>) { <span class="kw">val</span> t = <span class="kw">this</span>[a]; <span class="kw">this</span>[a] = <span class="kw">this</span>[b]; <span class="kw">this</span>[b] = t }
+
+<span class="kw">fun</span> <span class="fn">bubbleSort</span>(arr: <span class="ty">IntArray</span>) {
+    <span class="kw">val</span> n = arr.size
+    <span class="kw">for</span> (pass <span class="kw">in</span> <span class="cn">0</span> until n - <span class="cn">1</span>) {
+        <span class="kw">var</span> swapped = <span class="kw">false</span>
+        <span class="kw">for</span> (j <span class="kw">in</span> <span class="cn">0</span> until n - <span class="cn">1</span> - pass) {
+            <span class="kw">if</span> (arr[j] &gt; arr[j + <span class="cn">1</span>]) {          <span class="cm">// strict &gt; keeps equal items in order → stable</span>
+                arr.<span class="fn">swap</span>(j, j + <span class="cn">1</span>)
+                swapped = <span class="kw">true</span>
+            }
+        }
+        <span class="fn">println</span>(<span class="st">"after pass ${pass + 1}: ${arr.contentToString()}"</span>)
+        <span class="kw">if</span> (!swapped) <span class="kw">break</span>
+    }
+}
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="fn">bubbleSort</span>(<span class="fn">intArrayOf</span>(<span class="cn">5</span>, <span class="cn">1</span>, <span class="cn">4</span>, <span class="cn">2</span>, <span class="cn">8</span>))
+}</code></pre>
+<pre class="out"><code>after pass 1: [1, 4, 2, 5, 8]
+after pass 2: [1, 2, 4, 5, 8]
+after pass 3: [1, 2, 4, 5, 8]</code></pre>
+<div class="note nblu"><strong>Time:</strong> O(n²) worst/average, O(n) best (already sorted) · <strong>Space:</strong> O(1), in place · <strong>Stable</strong></div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li>Why is it stable? It only swaps on strict <span class="ic">&gt;</span>, so equal items never pass each other.</li>
+<li>Where is it actually useful? Almost nowhere in production. It is asked to check loop reasoning.</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--cyab);color:var(--cyal)">Q6</span><span class="qt">Selection sort</span><span class="dif easy">Easy</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Sort an array by repeatedly selecting the minimum of the unsorted part.</p>
+<p><strong>Approach.</strong> For each position <span class="ic">i</span>, scan the rest of the array for the smallest item and swap it into place. It always does about n²/2 comparisons, even on sorted input, but <strong>at most n − 1 swaps</strong>, which is its one advantage when writes are expensive.</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="kw">FUNCTION</span> <span class="fn">selectionSort</span>(arr)
+    <span class="kw">FOR</span> i <span class="kw">FROM</span> <span class="cn">0</span> <span class="kw">TO</span> n - <span class="cn">2</span>
+        minIdx = i
+        <span class="kw">FOR</span> j <span class="kw">FROM</span> i + <span class="cn">1</span> <span class="kw">TO</span> n - <span class="cn">1</span>            <span class="cm">// find the smallest item in the unsorted part</span>
+            <span class="kw">IF</span> arr[j] &lt; arr[minIdx] <span class="kw">THEN</span> minIdx = j
+        <span class="kw">SWAP</span> arr[i], arr[minIdx]             <span class="cm">// put it at the front of the unsorted part</span></code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">fun</span> <span class="ty">IntArray</span>.<span class="fn">swap</span>(a: <span class="ty">Int</span>, b: <span class="ty">Int</span>) { <span class="kw">val</span> t = <span class="kw">this</span>[a]; <span class="kw">this</span>[a] = <span class="kw">this</span>[b]; <span class="kw">this</span>[b] = t }
+
+<span class="kw">fun</span> <span class="fn">selectionSort</span>(arr: <span class="ty">IntArray</span>) {
+    <span class="kw">for</span> (i <span class="kw">in</span> <span class="cn">0</span> until arr.size - <span class="cn">1</span>) {
+        <span class="kw">var</span> minIdx = i
+        <span class="kw">for</span> (j <span class="kw">in</span> i + <span class="cn">1</span> until arr.size) {
+            <span class="kw">if</span> (arr[j] &lt; arr[minIdx]) minIdx = j
+        }
+        <span class="kw">if</span> (minIdx != i) arr.<span class="fn">swap</span>(i, minIdx)   <span class="cm">// at most n-1 swaps in total</span>
+        <span class="fn">println</span>(<span class="st">"i=$i: ${arr.contentToString()}"</span>)
+    }
+}
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="fn">selectionSort</span>(<span class="fn">intArrayOf</span>(<span class="cn">64</span>, <span class="cn">25</span>, <span class="cn">12</span>, <span class="cn">22</span>, <span class="cn">11</span>))
+}</code></pre>
+<pre class="out"><code>i=0: [11, 25, 12, 22, 64]
+i=1: [11, 12, 25, 22, 64]
+i=2: [11, 12, 22, 25, 64]
+i=3: [11, 12, 22, 25, 64]</code></pre>
+<div class="note nblu"><strong>Time:</strong> O(n²) in every case · <strong>Space:</strong> O(1), in place · <strong>Not stable</strong></div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li>Why not stable? The long-distance swap can jump an item over an equal one. Example: <span class="ic">[4a, 4b, 1]</span> becomes <span class="ic">[1, 4b, 4a]</span>.</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--orab);color:var(--oral)">Q7</span><span class="qt">Insertion sort</span><span class="dif easy">Easy</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Sort an array the way you sort playing cards in your hand.</p>
+<p><strong>Approach.</strong> Keep a sorted prefix. Take the next item (<span class="ic">key</span>), <strong>shift</strong> every larger item in the prefix one step right, and drop <span class="ic">key</span> into the gap. On nearly sorted data almost nothing moves, so it runs in close to linear time.</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="kw">FUNCTION</span> <span class="fn">insertionSort</span>(arr)
+    <span class="kw">FOR</span> i <span class="kw">FROM</span> <span class="cn">1</span> <span class="kw">TO</span> n - <span class="cn">1</span>
+        key = arr[i]                         <span class="cm">// the next card to insert</span>
+        j = i - <span class="cn">1</span>
+        <span class="kw">WHILE</span> j &gt;= <span class="cn">0</span> <span class="kw">AND</span> arr[j] &gt; key        <span class="cm">// shift bigger items one step right</span>
+            arr[j + <span class="cn">1</span>] = arr[j]
+            j = j - <span class="cn">1</span>
+        arr[j + <span class="cn">1</span>] = key                     <span class="cm">// drop the card into the gap</span></code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">fun</span> <span class="fn">insertionSort</span>(arr: <span class="ty">IntArray</span>) {
+    <span class="kw">for</span> (i <span class="kw">in</span> <span class="cn">1</span> until arr.size) {
+        <span class="kw">val</span> key = arr[i]
+        <span class="kw">var</span> j = i - <span class="cn">1</span>
+        <span class="kw">while</span> (j &gt;= <span class="cn">0</span> &amp;&amp; arr[j] &gt; key) {
+            arr[j + <span class="cn">1</span>] = arr[j]
+            j--
+        }
+        arr[j + <span class="cn">1</span>] = key
+        <span class="fn">println</span>(<span class="st">"insert $key: ${arr.contentToString()}"</span>)
+    }
+}
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="fn">insertionSort</span>(<span class="fn">intArrayOf</span>(<span class="cn">12</span>, <span class="cn">11</span>, <span class="cn">13</span>, <span class="cn">5</span>, <span class="cn">6</span>))
+}</code></pre>
+<pre class="out"><code>insert 11: [11, 12, 13, 5, 6]
+insert 13: [11, 12, 13, 5, 6]
+insert 5: [5, 11, 12, 13, 6]
+insert 6: [5, 6, 11, 12, 13]</code></pre>
+<div class="note nblu"><strong>Time:</strong> O(n²) worst, O(n) best (nearly sorted) · <strong>Space:</strong> O(1), in place · <strong>Stable</strong></div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li>Real libraries (TimSort, introsort) switch to insertion sort for small subarrays (roughly fewer than 16–32 items) because it has very low overhead.</li>
+<li>Shifting instead of swapping does one write per move instead of three.</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--grnb);color:var(--grnl)">Q8</span><span class="qt">Merge sort</span><span class="dif med">Medium</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Sort an array in O(n log n) using divide and conquer.</p>
+<p><strong>Approach.</strong> <strong>Divide</strong> the array in half, <strong>recursively sort</strong> each half, then <strong>merge</strong> the two sorted halves by repeatedly taking the smaller front element. The recursion is log n levels deep and each level does O(n) merging work. Using <span class="ic">&lt;=</span> in the merge takes from the left half on ties, which keeps the sort stable.</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="kw">FUNCTION</span> <span class="fn">mergeSort</span>(arr)
+    <span class="kw">IF</span> <span class="fn">length</span>(arr) &lt;= <span class="cn">1</span> <span class="kw">THEN</span> <span class="kw">RETURN</span> arr      <span class="cm">// base case</span>
+    mid = <span class="fn">length</span>(arr) / <span class="cn">2</span>
+    left  = <span class="fn">mergeSort</span>(arr[<span class="cn">0</span> .. mid))         <span class="cm">// divide</span>
+    right = <span class="fn">mergeSort</span>(arr[mid .. end))
+    <span class="kw">RETURN</span> <span class="fn">merge</span>(left, right)                <span class="cm">// conquer</span>
+
+<span class="kw">FUNCTION</span> <span class="fn">merge</span>(a, b)
+    result = []; i = <span class="cn">0</span>; j = <span class="cn">0</span>
+    <span class="kw">WHILE</span> i &lt; <span class="fn">length</span>(a) <span class="kw">AND</span> j &lt; <span class="fn">length</span>(b)
+        <span class="kw">IF</span> a[i] &lt;= b[j] <span class="kw">THEN</span> <span class="kw">APPEND</span> a[i++]   <span class="cm">// &lt;= keeps equal items in order → stable</span>
+        <span class="kw">ELSE</span> <span class="kw">APPEND</span> b[j++]
+    <span class="kw">APPEND</span> the rest of a, then the rest of b
+    <span class="kw">RETURN</span> result</code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">fun</span> <span class="fn">mergeSort</span>(arr: <span class="ty">IntArray</span>, depth: <span class="ty">Int</span> = <span class="cn">0</span>): <span class="ty">IntArray</span> {
+    <span class="kw">if</span> (arr.size &lt;= <span class="cn">1</span>) <span class="kw">return</span> arr
+    <span class="kw">val</span> mid = arr.size / <span class="cn">2</span>
+    <span class="kw">val</span> left = <span class="fn">mergeSort</span>(arr.<span class="fn">copyOfRange</span>(<span class="cn">0</span>, mid), depth + <span class="cn">1</span>)
+    <span class="kw">val</span> right = <span class="fn">mergeSort</span>(arr.<span class="fn">copyOfRange</span>(mid, arr.size), depth + <span class="cn">1</span>)
+    <span class="kw">return</span> <span class="fn">merge</span>(left, right).also {
+        <span class="fn">println</span>(<span class="st">"  "</span>.<span class="fn">repeat</span>(depth) + <span class="st">"merge ${left.contentToString()} + ${right.contentToString()} → ${it.contentToString()}"</span>)
+    }
+}
+
+<span class="kw">fun</span> <span class="fn">merge</span>(a: <span class="ty">IntArray</span>, b: <span class="ty">IntArray</span>): <span class="ty">IntArray</span> {
+    <span class="kw">val</span> out = <span class="ty">IntArray</span>(a.size + b.size)
+    <span class="kw">var</span> i = <span class="cn">0</span>; <span class="kw">var</span> j = <span class="cn">0</span>; <span class="kw">var</span> k = <span class="cn">0</span>
+    <span class="kw">while</span> (i &lt; a.size &amp;&amp; j &lt; b.size) out[k++] = <span class="kw">if</span> (a[i] &lt;= b[j]) a[i++] <span class="kw">else</span> b[j++]
+    <span class="kw">while</span> (i &lt; a.size) out[k++] = a[i++]
+    <span class="kw">while</span> (j &lt; b.size) out[k++] = b[j++]
+    <span class="kw">return</span> out
+}
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="fn">println</span>(<span class="fn">mergeSort</span>(<span class="fn">intArrayOf</span>(<span class="cn">38</span>, <span class="cn">27</span>, <span class="cn">43</span>, <span class="cn">3</span>, <span class="cn">9</span>, <span class="cn">82</span>)).<span class="fn">contentToString</span>())
+}</code></pre>
+<pre class="out"><code>    merge [27] + [43] → [27, 43]
+  merge [38] + [27, 43] → [27, 38, 43]
+    merge [9] + [82] → [9, 82]
+  merge [3] + [9, 82] → [3, 9, 82]
+merge [27, 38, 43] + [3, 9, 82] → [3, 9, 27, 38, 43, 82]
+[3, 9, 27, 38, 43, 82]</code></pre>
+<div class="note nblu"><strong>Time:</strong> O(n log n) in every case · <strong>Space:</strong> O(n) extra for merging · <strong>Stable</strong></div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li>Merge sort is the natural choice for <strong>linked lists</strong> (no random access is needed and the merge needs no extra array) and for <strong>external sorting</strong> of files too big for memory.</li>
+<li>Reduce allocations by merging into one reusable buffer instead of copying subarrays.</li>
+<li>Merge k sorted lists: use a min-heap. Count inversions: count during the merge step.</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q9</span><span class="qt">Quick sort (Lomuto partition)</span><span class="dif med">Medium</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Sort an array in place in average O(n log n).</p>
+<p><strong>Approach.</strong> <strong>Partition</strong> around a pivot so smaller items end up on its left and larger ones on its right. The pivot is then in its <strong>final position</strong>. Recurse on both sides. Lomuto partition keeps a boundary <span class="ic">i</span>: everything before <span class="ic">i</span> is less than the pivot.</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="kw">FUNCTION</span> <span class="fn">quickSort</span>(arr, lo, hi)
+    <span class="kw">IF</span> lo &gt;= hi <span class="kw">THEN</span> <span class="kw">RETURN</span>
+    p = <span class="fn">partition</span>(arr, lo, hi)               <span class="cm">// pivot is now at its final index p</span>
+    <span class="fn">quickSort</span>(arr, lo, p - <span class="cn">1</span>)
+    <span class="fn">quickSort</span>(arr, p + <span class="cn">1</span>, hi)
+
+<span class="kw">FUNCTION</span> <span class="fn">partition</span>(arr, lo, hi)              <span class="cm">// Lomuto scheme</span>
+    pivot = arr[hi]
+    i = lo                                   <span class="cm">// arr[lo .. i) holds items &lt; pivot</span>
+    <span class="kw">FOR</span> j <span class="kw">FROM</span> lo <span class="kw">TO</span> hi - <span class="cn">1</span>
+        <span class="kw">IF</span> arr[j] &lt; pivot <span class="kw">THEN</span>
+            <span class="kw">SWAP</span> arr[i], arr[j]; i = i + <span class="cn">1</span>
+    <span class="kw">SWAP</span> arr[i], arr[hi]
+    <span class="kw">RETURN</span> i</code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">fun</span> <span class="ty">IntArray</span>.<span class="fn">swap</span>(a: <span class="ty">Int</span>, b: <span class="ty">Int</span>) { <span class="kw">val</span> t = <span class="kw">this</span>[a]; <span class="kw">this</span>[a] = <span class="kw">this</span>[b]; <span class="kw">this</span>[b] = t }
+
+<span class="kw">fun</span> <span class="fn">quickSort</span>(arr: <span class="ty">IntArray</span>, lo: <span class="ty">Int</span> = <span class="cn">0</span>, hi: <span class="ty">Int</span> = arr.size - <span class="cn">1</span>) {
+    <span class="kw">if</span> (lo &gt;= hi) <span class="kw">return</span>
+    <span class="kw">val</span> p = <span class="fn">partition</span>(arr, lo, hi)
+    <span class="fn">println</span>(<span class="st">"pivot ${arr[p]} at index $p: ${arr.contentToString()}"</span>)
+    <span class="fn">quickSort</span>(arr, lo, p - <span class="cn">1</span>)
+    <span class="fn">quickSort</span>(arr, p + <span class="cn">1</span>, hi)
+}
+
+<span class="kw">fun</span> <span class="fn">partition</span>(arr: <span class="ty">IntArray</span>, lo: <span class="ty">Int</span>, hi: <span class="ty">Int</span>): <span class="ty">Int</span> {
+    <span class="kw">val</span> pivot = arr[hi]                      <span class="cm">// production code picks a random/median pivot instead</span>
+    <span class="kw">var</span> i = lo
+    <span class="kw">for</span> (j <span class="kw">in</span> lo until hi) {
+        <span class="kw">if</span> (arr[j] &lt; pivot) { arr.<span class="fn">swap</span>(i, j); i++ }
+    }
+    arr.<span class="fn">swap</span>(i, hi)
+    <span class="kw">return</span> i
+}
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="kw">val</span> arr = <span class="fn">intArrayOf</span>(<span class="cn">10</span>, <span class="cn">80</span>, <span class="cn">30</span>, <span class="cn">90</span>, <span class="cn">40</span>, <span class="cn">50</span>, <span class="cn">70</span>)
+    <span class="fn">quickSort</span>(arr)
+    <span class="fn">println</span>(arr.<span class="fn">contentToString</span>())
+}</code></pre>
+<pre class="out"><code>pivot 70 at index 4: [10, 30, 40, 50, 70, 90, 80]
+pivot 50 at index 3: [10, 30, 40, 50, 70, 90, 80]
+pivot 40 at index 2: [10, 30, 40, 50, 70, 90, 80]
+pivot 30 at index 1: [10, 30, 40, 50, 70, 90, 80]
+pivot 80 at index 5: [10, 30, 40, 50, 70, 80, 90]
+[10, 30, 40, 50, 70, 80, 90]</code></pre>
+<div class="note nblu"><strong>Time:</strong> O(n log n) average, O(n²) worst (bad pivots, e.g. already sorted input with a last-element pivot) · <strong>Space:</strong> O(log n) recursion stack · <strong>Not stable</strong></div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li>Avoid the worst case with a <strong>random or median-of-three pivot</strong>. Recurse into the smaller side first to keep the stack at O(log n).</li>
+<li>Many duplicates? Use 3-way (Dutch national flag) partitioning.</li>
+<li>Quickselect uses the same partition to find the k-th smallest item in average O(n).</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q10</span><span class="qt">Comparator vs Comparable: sort objects by several fields, and which sort the library uses</span><span class="dif med">Medium</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Sort employees by salary (high to low) with ties broken by name, and give a <span class="ic">Version</span> class a natural ordering so that 1.10 > 1.2.</p>
+<p><strong>Approach.</strong> <strong><span class="ic">Comparable</span></strong> is the type's single natural ordering, implemented inside the class (<span class="ic">compareTo</span>). <strong>A <span class="ic">Comparator</span></strong> is a separate object, so you can have as many orderings as you need. In Kotlin, chain <span class="ic">compareBy</span> / <span class="ic">thenBy</span>; in Java, <span class="ic">Comparator.comparing(...).thenComparing(...)</span>.</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="cm">// Comparator = a separate "how to compare" object → many orderings for one type</span>
+<span class="kw">SORT</span> employees <span class="kw">BY</span> salary <span class="kw">DESCENDING</span>, <span class="kw">THEN</span> <span class="kw">BY</span> name <span class="kw">ASCENDING</span>
+
+<span class="cm">// Comparable = the type's ONE natural ordering, built into the class</span>
+<span class="kw">CLASS</span> <span class="ty">Version</span> <span class="kw">IMPLEMENTS</span> <span class="ty">Comparable</span>
+    <span class="kw">FUNCTION</span> <span class="fn">compareTo</span>(other)
+        <span class="kw">IF</span> major != other.major <span class="kw">THEN</span> <span class="kw">RETURN</span> major - other.major
+        <span class="kw">RETURN</span> minor - other.minor           <span class="cm">// negative = less, 0 = equal, positive = greater</span></code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">data</span> <span class="kw">class</span> <span class="ty">Employee</span>(<span class="kw">val</span> name: <span class="ty">String</span>, <span class="kw">val</span> dept: <span class="ty">String</span>, <span class="kw">val</span> salary: <span class="ty">Int</span>)
+
+<span class="kw">data</span> <span class="kw">class</span> <span class="ty">Version</span>(<span class="kw">val</span> major: <span class="ty">Int</span>, <span class="kw">val</span> minor: <span class="ty">Int</span>) : <span class="ty">Comparable</span>&lt;<span class="ty">Version</span>&gt; {
+    <span class="kw">override</span> <span class="kw">fun</span> <span class="fn">compareTo</span>(other: <span class="ty">Version</span>) =
+        <span class="fn">compareValuesBy</span>(<span class="kw">this</span>, other, { it.major }, { it.minor })   <span class="cm">// natural ordering</span>
+    <span class="kw">override</span> <span class="kw">fun</span> <span class="fn">toString</span>() = <span class="st">"$major.$minor"</span>
+}
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="kw">val</span> staff = <span class="fn">listOf</span>(
+        <span class="ty">Employee</span>(<span class="st">"Cara"</span>, <span class="st">"Eng"</span>, <span class="cn">120</span>), <span class="ty">Employee</span>(<span class="st">"Abe"</span>, <span class="st">"Eng"</span>, <span class="cn">120</span>),
+        <span class="ty">Employee</span>(<span class="st">"Ben"</span>, <span class="st">"Ops"</span>, <span class="cn">90</span>), <span class="ty">Employee</span>(<span class="st">"Dan"</span>, <span class="st">"Eng"</span>, <span class="cn">150</span>),
+    )
+    <span class="fn">println</span>(staff.sortedBy { it.salary }.map { it.name })      <span class="cm">// stable: Cara stays before Abe</span>
+    <span class="fn">println</span>(staff.<span class="fn">sortedWith</span>(compareByDescending&lt;<span class="ty">Employee</span>&gt; { it.salary }.thenBy { it.name }).map { it.name })
+    <span class="fn">println</span>(staff.groupBy { it.dept }.mapValues { (_, list) -&gt; list.maxOf { it.salary } })
+
+    <span class="kw">val</span> versions = <span class="fn">listOf</span>(<span class="ty">Version</span>(<span class="cn">1</span>, <span class="cn">10</span>), <span class="ty">Version</span>(<span class="cn">1</span>, <span class="cn">2</span>), <span class="ty">Version</span>(<span class="cn">0</span>, <span class="cn">9</span>))
+    <span class="fn">println</span>(versions.<span class="fn">sorted</span>())                                 <span class="cm">// uses compareTo</span>
+    <span class="fn">println</span>(versions.<span class="fn">max</span>())
+    <span class="fn">println</span>(<span class="st">"1.10"</span> &gt; <span class="st">"1.2"</span>)                                    <span class="cm">// why not compare strings: lexicographic!</span>
+}</code></pre>
+<pre class="out"><code>[Ben, Cara, Abe, Dan]
+[Dan, Abe, Cara, Ben]
+{Eng=150, Ops=90}
+[0.9, 1.2, 1.10]
+1.10
+false</code></pre>
+<div class="note nblu"><strong>Time:</strong> O(n log n) · <strong>Space:</strong> O(n) (TimSort) · <strong>Stable for objects</strong></div>
+<div class="tbl"><table><thead><tr><th>Algorithm</th><th>Best</th><th>Average</th><th>Worst</th><th>Space</th><th>Stable</th></tr></thead><tbody>
+<tr><td>Bubble</td><td>n</td><td>n²</td><td>n²</td><td>1</td><td>Yes</td></tr>
+<tr><td>Selection</td><td>n²</td><td>n²</td><td>n²</td><td>1</td><td>No</td></tr>
+<tr><td>Insertion</td><td>n</td><td>n²</td><td>n²</td><td>1</td><td>Yes</td></tr>
+<tr><td>Merge</td><td>n log n</td><td>n log n</td><td>n log n</td><td>n</td><td>Yes</td></tr>
+<tr><td>Quick</td><td>n log n</td><td>n log n</td><td>n²</td><td>log n</td><td>No</td></tr>
+<tr><td>Heap</td><td>n log n</td><td>n log n</td><td>n log n</td><td>1</td><td>No</td></tr>
+<tr><td>Counting</td><td>n + k</td><td>n + k</td><td>n + k</td><td>k</td><td>Yes</td></tr>
+</tbody></table></div>
+<div class="note nblu"><strong>What the standard library does:</strong> <span class="ic">IntArray.sort()</span> / <span class="ic">Arrays.sort(int[])</span> uses <strong>dual-pivot quicksort</strong> (primitives have no identity, so stability doesn't matter). <span class="ic">sortedBy</span>, <span class="ic">sortedWith</span>, <span class="ic">Collections.sort</span> and <span class="ic">List.sort</span> on objects use <strong>TimSort</strong>, a stable merge/insertion hybrid that is O(n) on already-sorted runs.</div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li><span class="ic">compareTo</span> must be consistent with <span class="ic">equals</span>, otherwise <span class="ic">TreeSet</span>/<span class="ic">TreeMap</span> will treat "equal by comparison" objects as duplicates.</li>
+<li>Never write <span class="ic">a - b</span> in a comparator for arbitrary ints: it overflows. Use <span class="ic">Integer.compare(a, b)</span> or <span class="ic">compareValues</span>.</li>
+</ul>
+</div>
+</details>
+
+<h2 id="class-design">Interfaces &amp; Single-Class Design</h2>
+<p class="sub" style="margin-bottom:12px">"Write a class that..." questions test encapsulation, validation, polymorphism and thread safety more than algorithms. Talk through the public API first, then the invariants you protect.</p>
+
+<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q11</span><span class="qt">Design a Shape interface hierarchy with polymorphic area()</span><span class="dif easy">Easy</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Model Circle, Rectangle and Triangle so that client code can compute areas and descriptions without knowing the concrete type.</p>
+<p><strong>Approach.</strong> Put the <strong>contract</strong> in an interface (<span class="ic">area()</span>, <span class="ic">name</span>) and <strong>shared behaviour</strong> in a default method (<span class="ic">describe()</span>). Each class implements only what differs. The client loops over a <span class="ic">List&lt;Shape&gt;</span> and dynamic dispatch calls the right <span class="ic">area()</span>. That is polymorphism, and adding a new shape needs no change to the client (Open/Closed).</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="kw">INTERFACE</span> <span class="ty">Shape</span>
+    name
+    <span class="kw">FUNCTION</span> <span class="fn">area</span>()                          <span class="cm">// abstract: every shape must implement it</span>
+    <span class="kw">FUNCTION</span> <span class="fn">describe</span>()                      <span class="cm">// default method: shared by all shapes</span>
+        <span class="kw">RETURN</span> name + <span class="st">" with area "</span> + <span class="fn">area</span>()
+
+<span class="kw">CLASS</span> <span class="ty">Circle</span>(radius) <span class="kw">IMPLEMENTS</span> <span class="ty">Shape</span>        area = <span class="kw">PI</span> * r * r
+<span class="kw">CLASS</span> <span class="ty">Rectangle</span>(w, h) <span class="kw">IMPLEMENTS</span> <span class="ty">Shape</span>       area = w * h
+<span class="kw">CLASS</span> <span class="ty">Triangle</span>(base, h) <span class="kw">IMPLEMENTS</span> <span class="ty">Shape</span>     area = base * h / <span class="cn">2</span>
+
+shapes = [<span class="ty">Circle</span>(<span class="cn">1</span>), <span class="ty">Rectangle</span>(<span class="cn">2</span>, <span class="cn">3</span>), <span class="ty">Triangle</span>(<span class="cn">3</span>, <span class="cn">4</span>)]
+<span class="kw">FOR</span> <span class="kw">EACH</span> s <span class="kw">IN</span> shapes: <span class="kw">PRINT</span> s.<span class="fn">describe</span>()     <span class="cm">// polymorphism: one call, the right area() at runtime</span></code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">import</span> kotlin.math.<span class="ty">PI</span>
+
+<span class="kw">interface</span> <span class="ty">Shape</span> {
+    <span class="kw">val</span> name: <span class="ty">String</span>
+    <span class="kw">fun</span> <span class="fn">area</span>(): <span class="ty">Double</span>
+    <span class="kw">fun</span> <span class="fn">describe</span>() = <span class="st">"$name with area ${"</span>%.<span class="cn">2f</span><span class="st">".format(area())}"</span>   <span class="cm">// default implementation</span>
+}
+
+<span class="kw">class</span> <span class="ty">Circle</span>(<span class="kw">private</span> <span class="kw">val</span> radius: <span class="ty">Double</span>) : <span class="ty">Shape</span> {
+    <span class="kw">override</span> <span class="kw">val</span> name = <span class="st">"Circle"</span>
+    <span class="kw">override</span> <span class="kw">fun</span> <span class="fn">area</span>() = <span class="ty">PI</span> * radius * radius
+}
+
+<span class="kw">class</span> <span class="ty">Rectangle</span>(<span class="kw">private</span> <span class="kw">val</span> w: <span class="ty">Double</span>, <span class="kw">private</span> <span class="kw">val</span> h: <span class="ty">Double</span>) : <span class="ty">Shape</span> {
+    <span class="kw">override</span> <span class="kw">val</span> name = <span class="st">"Rectangle"</span>
+    <span class="kw">override</span> <span class="kw">fun</span> <span class="fn">area</span>() = w * h
+}
+
+<span class="kw">class</span> <span class="ty">Triangle</span>(<span class="kw">private</span> <span class="kw">val</span> base: <span class="ty">Double</span>, <span class="kw">private</span> <span class="kw">val</span> height: <span class="ty">Double</span>) : <span class="ty">Shape</span> {
+    <span class="kw">override</span> <span class="kw">val</span> name = <span class="st">"Triangle"</span>
+    <span class="kw">override</span> <span class="kw">fun</span> <span class="fn">area</span>() = base * height / <span class="cn">2</span>
+}
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="kw">val</span> shapes: <span class="ty">List</span>&lt;<span class="ty">Shape</span>&gt; = <span class="fn">listOf</span>(<span class="ty">Circle</span>(<span class="cn">1.0</span>), <span class="ty">Rectangle</span>(<span class="cn">2.0</span>, <span class="cn">3.0</span>), <span class="ty">Triangle</span>(<span class="cn">3.0</span>, <span class="cn">4.0</span>))
+    shapes.forEach { <span class="fn">println</span>(it.<span class="fn">describe</span>()) }
+    <span class="fn">println</span>(<span class="st">"total = %.2f"</span>.<span class="fn">format</span>(shapes.sumOf { it.<span class="fn">area</span>() }))
+    <span class="fn">println</span>(<span class="st">"largest = "</span> + shapes.maxBy { it.<span class="fn">area</span>() }.name)
+}</code></pre>
+<pre class="out"><code>Circle with area 3.14
+Rectangle with area 6.00
+Triangle with area 6.00
+total = 15.14
+largest = Rectangle</code></pre>
+<p class="lbl">Java</p>
+<pre><code><span class="kw">import</span> java.util.<span class="ty">List</span>;
+
+<span class="kw">public</span> <span class="kw">class</span> <span class="ty">Shapes</span> {
+    <span class="kw">interface</span> <span class="ty">Shape</span> {
+        <span class="ty">String</span> <span class="fn">name</span>();
+        <span class="kw">double</span> <span class="fn">area</span>();
+        <span class="kw">default</span> <span class="ty">String</span> <span class="fn">describe</span>() {                 <span class="cm">// Java 8+ default method</span>
+            <span class="kw">return</span> <span class="ty">String</span>.<span class="fn">format</span>(<span class="st">"%s with area %.2f"</span>, <span class="fn">name</span>(), <span class="fn">area</span>());
+        }
+    }
+
+    <span class="kw">record</span> <span class="ty">Circle</span>(<span class="kw">double</span> radius) <span class="kw">implements</span> <span class="ty">Shape</span> {
+        <span class="kw">public</span> <span class="ty">String</span> <span class="fn">name</span>() { <span class="kw">return</span> <span class="st">"Circle"</span>; }
+        <span class="kw">public</span> <span class="kw">double</span> <span class="fn">area</span>() { <span class="kw">return</span> <span class="ty">Math</span>.<span class="ty">PI</span> * radius * radius; }
+    }
+
+    <span class="kw">record</span> <span class="ty">Rectangle</span>(<span class="kw">double</span> w, <span class="kw">double</span> h) <span class="kw">implements</span> <span class="ty">Shape</span> {
+        <span class="kw">public</span> <span class="ty">String</span> <span class="fn">name</span>() { <span class="kw">return</span> <span class="st">"Rectangle"</span>; }
+        <span class="kw">public</span> <span class="kw">double</span> <span class="fn">area</span>() { <span class="kw">return</span> w * h; }
+    }
+
+    <span class="kw">record</span> <span class="ty">Triangle</span>(<span class="kw">double</span> base, <span class="kw">double</span> height) <span class="kw">implements</span> <span class="ty">Shape</span> {
+        <span class="kw">public</span> <span class="ty">String</span> <span class="fn">name</span>() { <span class="kw">return</span> <span class="st">"Triangle"</span>; }
+        <span class="kw">public</span> <span class="kw">double</span> <span class="fn">area</span>() { <span class="kw">return</span> base * height / <span class="cn">2</span>; }
+    }
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {
+        <span class="ty">List</span>&lt;<span class="ty">Shape</span>&gt; shapes = <span class="ty">List</span>.<span class="fn">of</span>(<span class="kw">new</span> <span class="ty">Circle</span>(<span class="cn">1</span>), <span class="kw">new</span> <span class="ty">Rectangle</span>(<span class="cn">2</span>, <span class="cn">3</span>), <span class="kw">new</span> <span class="ty">Triangle</span>(<span class="cn">3</span>, <span class="cn">4</span>));
+        <span class="kw">for</span> (<span class="ty">Shape</span> s : shapes) <span class="ty">System</span>.out.<span class="fn">println</span>(s.<span class="fn">describe</span>());
+        <span class="kw">double</span> total = shapes.<span class="fn">stream</span>().<span class="fn">mapToDouble</span>(<span class="ty">Shape</span>::area).<span class="fn">sum</span>();
+        <span class="ty">System</span>.out.<span class="fn">println</span>(<span class="ty">String</span>.<span class="fn">format</span>(<span class="st">"total = %.2f"</span>, total));
+    }
+}</code></pre>
+<pre class="out"><code>Circle with area 3.14
+Rectangle with area 6.00
+Triangle with area 6.00
+total = 15.14</code></pre>
+<div class="note nblu"><strong>Time:</strong> O(1) per call · <strong>Space:</strong> O(1)</div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li><strong>Interface vs abstract class:</strong> use an abstract class when the shapes need shared <strong>state</strong> or a constructor (e.g. a <span class="ic">color</span> field); otherwise prefer an interface, since a class can implement many.</li>
+<li>Should Square extend Rectangle? Not if Rectangle is mutable: <span class="ic">setWidth</span> on a Square breaks its invariant. That is the classic Liskov Substitution violation. Make shapes immutable or keep them siblings.</li>
+<li>With a <span class="ic">sealed interface</span>, a <span class="ic">when</span> over shapes can be checked for exhaustiveness.</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q12</span><span class="qt">Design a thread-safe BankAccount class</span><span class="dif med">Medium</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Write a BankAccount with deposit, withdraw and transfer that never goes negative, rejects bad input, keeps a transaction history, and is safe to use from many threads.</p>
+<p><strong>Approach.</strong> <strong>Encapsulate</strong> the balance: a public getter and a <span class="ic">private set</span>, so it only changes through methods that check the rules. <strong>Validate</strong> arguments with <span class="ic">require</span> (<span class="ic">IllegalArgumentException</span>) and use a domain exception for business rule failures. <strong>Synchronize</strong> the mutators. For transfers, always lock the two accounts in the <strong>same global order</strong> (by id), so two opposite transfers can't deadlock.</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="kw">CLASS</span> <span class="ty">BankAccount</span>(owner, initial)
+    <span class="kw">PRIVATE</span> balance                          <span class="cm">// readable from outside, changed only by methods</span>
+    <span class="kw">PRIVATE</span> history = []
+
+    <span class="kw">FUNCTION</span> <span class="fn">deposit</span>(amount)     <span class="kw">SYNCHRONIZED</span>
+        <span class="kw">REQUIRE</span> amount &gt; <span class="cn">0</span>
+        balance += amount; history.<span class="fn">add</span>(<span class="st">"+amount"</span>)
+
+    <span class="kw">FUNCTION</span> <span class="fn">withdraw</span>(amount)    <span class="kw">SYNCHRONIZED</span>
+        <span class="kw">REQUIRE</span> amount &gt; <span class="cn">0</span>
+        <span class="kw">IF</span> amount &gt; balance <span class="kw">THEN</span> <span class="kw">THROW</span> <span class="ty">InsufficientFunds</span>
+        balance -= amount; history.<span class="fn">add</span>(<span class="st">"-amount"</span>)
+
+    <span class="kw">FUNCTION</span> <span class="fn">transferTo</span>(other, amount)
+        <span class="kw">LOCK</span> the account with the smaller id <span class="kw">FIRST</span>, then the other   <span class="cm">// fixed lock order → no deadlock</span>
+        <span class="fn">withdraw</span>(amount); other.<span class="fn">deposit</span>(amount)</code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">import</span> java.util.concurrent.atomic.<span class="ty">AtomicLong</span>
+
+<span class="kw">class</span> <span class="ty">InsufficientFundsException</span>(message: <span class="ty">String</span>) : <span class="ty">Exception</span>(message)
+
+<span class="kw">class</span> <span class="ty">BankAccount</span>(<span class="kw">val</span> owner: <span class="ty">String</span>, initialCents: <span class="ty">Long</span> = <span class="cn">0</span>) {
+    <span class="kw">private</span> <span class="kw">val</span> id = nextId.<span class="fn">getAndIncrement</span>()        <span class="cm">// used for a global lock order</span>
+    <span class="kw">var</span> balance: <span class="ty">Long</span> = initialCents                 <span class="cm">// money in cents: never use Double</span>
+        <span class="kw">private</span> set                                  <span class="cm">// public getter, private setter</span>
+    <span class="kw">private</span> <span class="kw">val</span> history = mutableListOf&lt;<span class="ty">String</span>&gt;()
+    <span class="kw">val</span> transactions: <span class="ty">List</span>&lt;<span class="ty">String</span>&gt;
+        <span class="an">@Synchronized</span> <span class="fn">get</span>() = history.<span class="fn">toList</span>()       <span class="cm">// hand out a copy, never the mutable list</span>
+
+    <span class="kw">init</span> { <span class="fn">require</span>(initialCents &gt;= <span class="cn">0</span>) { <span class="st">"initial balance must be &gt;= 0"</span> } }
+
+    <span class="an">@Synchronized</span>
+    <span class="kw">fun</span> <span class="fn">deposit</span>(amount: <span class="ty">Long</span>) {
+        <span class="fn">require</span>(amount &gt; <span class="cn">0</span>) { <span class="st">"deposit must be positive"</span> }
+        balance += amount
+        history += <span class="st">"+$amount"</span>
+    }
+
+    <span class="an">@Synchronized</span>
+    <span class="kw">fun</span> <span class="fn">withdraw</span>(amount: <span class="ty">Long</span>) {
+        <span class="fn">require</span>(amount &gt; <span class="cn">0</span>) { <span class="st">"withdrawal must be positive"</span> }
+        <span class="kw">if</span> (amount &gt; balance) <span class="kw">throw</span> <span class="ty">InsufficientFundsException</span>(<span class="st">"balance $balance &lt; $amount"</span>)
+        balance -= amount
+        history += <span class="st">"-$amount"</span>
+    }
+
+    <span class="kw">fun</span> <span class="fn">transferTo</span>(other: <span class="ty">BankAccount</span>, amount: <span class="ty">Long</span>) {
+        <span class="kw">val</span> (first, second) = <span class="kw">if</span> (id &lt; other.id) <span class="kw">this</span> to other <span class="kw">else</span> other to <span class="kw">this</span>
+        <span class="fn">synchronized</span>(first) {
+            <span class="fn">synchronized</span>(second) {                   <span class="cm">// both locks taken in the same global order</span>
+                <span class="fn">withdraw</span>(amount)
+                other.<span class="fn">deposit</span>(amount)
+            }
+        }
+    }
+
+    <span class="kw">companion</span> <span class="kw">object</span> { <span class="kw">private</span> <span class="kw">val</span> nextId = <span class="ty">AtomicLong</span>() }
+}
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="kw">val</span> alice = <span class="ty">BankAccount</span>(<span class="st">"alice"</span>, <span class="cn">10_000</span>)
+    <span class="kw">val</span> bob = <span class="ty">BankAccount</span>(<span class="st">"bob"</span>)
+    alice.<span class="fn">withdraw</span>(<span class="cn">2_500</span>)
+    <span class="kw">try</span> { bob.<span class="fn">withdraw</span>(<span class="cn">1</span>) } <span class="kw">catch</span> (e: <span class="ty">InsufficientFundsException</span>) { <span class="fn">println</span>(<span class="st">"rejected: ${e.message}"</span>) }
+    <span class="kw">try</span> { alice.<span class="fn">deposit</span>(-<span class="cn">5</span>) } <span class="kw">catch</span> (e: <span class="ty">IllegalArgumentException</span>) { <span class="fn">println</span>(<span class="st">"rejected: ${e.message}"</span>) }
+    alice.<span class="fn">transferTo</span>(bob, <span class="cn">1_000</span>)
+    <span class="fn">println</span>(<span class="st">"${alice.balance} ${bob.balance} ${alice.transactions}"</span>)
+
+    <span class="kw">val</span> threads = <span class="ty">List</span>(<span class="cn">4</span>) { <span class="ty">Thread</span> { <span class="fn">repeat</span>(<span class="cn">1000</span>) { bob.<span class="fn">deposit</span>(<span class="cn">1</span>) } } }   <span class="cm">// 4000 concurrent deposits</span>
+    threads.forEach { it.<span class="fn">start</span>() }
+    threads.forEach { it.<span class="fn">join</span>() }
+    <span class="fn">println</span>(bob.balance)                             <span class="cm">// always 5000 thanks to @Synchronized</span>
+}</code></pre>
+<pre class="out"><code>rejected: balance 0 &lt; 1
+rejected: deposit must be positive
+6500 1000 [-2500, -1000]
+5000</code></pre>
+<div class="note nblu"><strong>Time:</strong> O(1) per operation · <strong>Space:</strong> O(t) history</div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li>Why <span class="ic">Long</span> cents instead of <span class="ic">Double</span>? <span class="ic">0.1 + 0.2 != 0.3</span>. Money needs exact arithmetic (<span class="ic">Long</span> cents or <span class="ic">BigDecimal</span>).</li>
+<li>Why return <span class="ic">history.toList()</span>? Returning the internal list would let callers modify it, breaking encapsulation.</li>
+<li>Remove the <span class="ic">@Synchronized</span> annotations and the 4,000 concurrent deposits will usually total less than 4,000, because <span class="ic">+=</span> is a read-modify-write.</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--cyab);color:var(--cyal)">Q13</span><span class="qt">Implement a thread-safe Singleton (Kotlin object, double-checked locking, holder idiom)</span><span class="dif med">Medium</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Guarantee exactly one instance of a class, created lazily, even when many threads ask for it at the same time.</p>
+<p><strong>Approach.</strong> In Kotlin, an <strong><span class="ic">object</span></strong> declaration already is a lazy, thread-safe singleton (the JVM runs its static initializer once). When creation needs an <strong>argument</strong> (e.g. Android's <span class="ic">Room.databaseBuilder(context)</span>), use <strong>double-checked locking</strong> with <span class="ic">@Volatile</span>: check without the lock, lock, then check again.</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="kw">CLASS</span> <span class="ty">Database</span>
+    <span class="kw">PRIVATE</span> <span class="kw">CONSTRUCTOR</span>                      <span class="cm">// nobody else can call new</span>
+    <span class="kw">PRIVATE</span> <span class="kw">STATIC</span> <span class="kw">VOLATILE</span> instance = null
+
+    <span class="kw">STATIC</span> <span class="kw">FUNCTION</span> <span class="fn">getInstance</span>()
+        <span class="kw">IF</span> instance == null <span class="kw">THEN</span>             <span class="cm">// 1st check: fast path, no lock once created</span>
+            <span class="kw">LOCK</span> <span class="ty">Database</span>.class
+                <span class="kw">IF</span> instance == null <span class="kw">THEN</span>     <span class="cm">// 2nd check: another thread may have won the race</span>
+                    instance = new <span class="ty">Database</span>()
+        <span class="kw">RETURN</span> instance</code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">object</span> <span class="ty">Logger</span> {                                    <span class="cm">// Kotlin object = lazy, thread-safe singleton</span>
+    <span class="kw">init</span> { <span class="fn">println</span>(<span class="st">"Logger created"</span>) }
+    <span class="kw">fun</span> <span class="fn">log</span>(msg: <span class="ty">String</span>) = <span class="fn">println</span>(<span class="st">"[log] $msg"</span>)
+}
+
+<span class="kw">class</span> <span class="ty">Database</span> <span class="kw">private</span> <span class="kw">constructor</span>(<span class="kw">val</span> name: <span class="ty">String</span>) {   <span class="cm">// needs an argument → an object will not do</span>
+    <span class="kw">companion</span> <span class="kw">object</span> {
+        <span class="an">@Volatile</span> <span class="kw">private</span> <span class="kw">var</span> <span class="ty">INSTANCE</span>: <span class="ty">Database</span>? = <span class="kw">null</span>
+
+        <span class="kw">fun</span> <span class="fn">getInstance</span>(name: <span class="ty">String</span>): <span class="ty">Database</span> =
+            <span class="ty">INSTANCE</span> ?: <span class="fn">synchronized</span>(<span class="kw">this</span>) {
+                <span class="ty">INSTANCE</span> ?: <span class="ty">Database</span>(name).also {
+                    <span class="ty">INSTANCE</span> = it
+                    <span class="fn">println</span>(<span class="st">"Database created"</span>)
+                }
+            }
+    }
+}
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="fn">println</span>(<span class="st">"start"</span>)                               <span class="cm">// Logger not created yet: objects init on first use</span>
+    <span class="ty">Logger</span>.<span class="fn">log</span>(<span class="st">"a"</span>)
+    <span class="ty">Logger</span>.<span class="fn">log</span>(<span class="st">"b"</span>)
+    <span class="kw">val</span> threads = <span class="ty">List</span>(<span class="cn">8</span>) { <span class="ty">Thread</span> { <span class="ty">Database</span>.<span class="fn">getInstance</span>(<span class="st">"app.db"</span>) } }
+    threads.forEach { it.<span class="fn">start</span>() }
+    threads.forEach { it.<span class="fn">join</span>() }
+    <span class="fn">println</span>(<span class="ty">Database</span>.<span class="fn">getInstance</span>(<span class="st">"ignored"</span>).name)  <span class="cm">// later calls get the existing instance</span>
+}</code></pre>
+<pre class="out"><code>start
+Logger created
+[log] a
+[log] b
+Database created
+app.db</code></pre>
+<p class="lbl">Java</p>
+<pre><code><span class="cm">// 1) Double-checked locking: volatile is REQUIRED, or another thread</span>
+<span class="cm">//    may see a half-constructed object (instruction reordering).</span>
+<span class="kw">public</span> <span class="kw">final</span> <span class="kw">class</span> <span class="ty">Database</span> {
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">volatile</span> <span class="ty">Database</span> instance;
+    <span class="kw">private</span> <span class="ty">Database</span>() { }
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="ty">Database</span> <span class="fn">getInstance</span>() {
+        <span class="ty">Database</span> local = instance;              <span class="cm">// one volatile read on the fast path</span>
+        <span class="kw">if</span> (local == <span class="kw">null</span>) {
+            <span class="kw">synchronized</span> (<span class="ty">Database</span>.<span class="kw">class</span>) {
+                local = instance;
+                <span class="kw">if</span> (local == <span class="kw">null</span>) instance = local = <span class="kw">new</span> <span class="ty">Database</span>();
+            }
+        }
+        <span class="kw">return</span> local;
+    }
+}
+
+<span class="cm">// 2) Holder idiom: lazy and thread-safe with no locks at all.</span>
+<span class="cm">//    The JVM initializes Holder only when getInstance() first touches it.</span>
+<span class="kw">final</span> <span class="kw">class</span> <span class="ty">Config</span> {
+    <span class="kw">private</span> <span class="ty">Config</span>() { }
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">class</span> <span class="ty">Holder</span> { <span class="kw">static</span> <span class="kw">final</span> <span class="ty">Config</span> <span class="ty">INSTANCE</span> = <span class="kw">new</span> <span class="ty">Config</span>(); }
+    <span class="kw">public</span> <span class="kw">static</span> <span class="ty">Config</span> <span class="fn">getInstance</span>() { <span class="kw">return</span> <span class="ty">Holder</span>.<span class="ty">INSTANCE</span>; }
+}
+
+<span class="cm">// 3) Enum singleton: also safe against reflection and serialization.</span>
+<span class="kw">enum</span> <span class="ty">Registry</span> { <span class="ty">INSTANCE</span>; <span class="kw">void</span> <span class="fn">register</span>(<span class="ty">String</span> key) { } }</code></pre>
+<div class="note nblu"><strong>Time:</strong> O(1) after the first call · <strong>Space:</strong> O(1)</div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li>Why <span class="ic">@Volatile</span>? Without it, the write to <span class="ic">INSTANCE</span> can be reordered before the constructor finishes, so another thread could see a half-built object.</li>
+<li>Singletons are global mutable state: they are hard to test and can leak an Activity <span class="ic">Context</span>. Prefer DI scopes (<span class="ic">@Singleton</span> in Hilt) and store <span class="ic">applicationContext</span> only.</li>
+<li>The Java enum singleton is the only form that is safe against reflection and serialization by default.</li>
+</ul>
+</div>
+</details>
+
+<h2 id="data-structures">Build a Data-Structure Class</h2>
+<p class="sub" style="margin-bottom:12px">Implement a container from scratch, with a clean API, the right complexity guarantees, and edge cases (empty, full, duplicates) handled.</p>
+
+<details><summary><span class="qn" style="background:var(--orab);color:var(--oral)">Q14</span><span class="qt">Implement a generic, resizable Stack, and use it to check balanced brackets</span><span class="dif easy">Easy</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Write <span class="ic">ArrayStack&lt;T&gt;</span> with push, pop, peek, size and iteration, backed by an array that grows as needed. Then use it to validate <span class="ic">"{[()]}"</span>.</p>
+<p><strong>Approach.</strong> Keep an array and a <span class="ic">size</span> index. When the array is full, <strong>double</strong> it: copying happens rarely, so push is <strong>amortized O(1)</strong>. On <span class="ic">pop</span>, <strong>null out</strong> the vacated slot so the GC can free the object. For brackets: push openers; on a closer, the top of the stack must be its matching opener.</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="kw">CLASS</span> <span class="ty">Stack</span>&lt;<span class="ty">T</span>&gt;
+    items = array of capacity <span class="cn">2</span>; size = <span class="cn">0</span>
+
+    <span class="kw">FUNCTION</span> <span class="fn">push</span>(x)
+        <span class="kw">IF</span> size == capacity <span class="kw">THEN</span> items = copy of items with <span class="kw">DOUBLE</span> capacity   <span class="cm">// amortized O(1)</span>
+        items[size] = x; size = size + <span class="cn">1</span>
+
+    <span class="kw">FUNCTION</span> <span class="fn">pop</span>()
+        <span class="kw">IF</span> size == <span class="cn">0</span> <span class="kw">THEN</span> <span class="kw">THROW</span> <span class="st">"empty stack"</span>
+        size = size - <span class="cn">1</span>
+        x = items[size]; items[size] = null   <span class="cm">// clear the slot so the GC can reclaim it</span>
+        <span class="kw">RETURN</span> x
+
+    <span class="kw">FUNCTION</span> <span class="fn">peek</span>()  → items[size - <span class="cn">1</span>]
+
+<span class="cm">// Use case: balanced brackets</span>
+<span class="kw">FOR</span> <span class="kw">EACH</span> ch <span class="kw">IN</span> text
+    <span class="kw">IF</span> ch is an opener <span class="kw">THEN</span> <span class="fn">push</span>(ch)
+    <span class="kw">ELSE</span> <span class="kw">IF</span> ch is a closer <span class="kw">THEN</span>
+        <span class="kw">IF</span> stack empty <span class="kw">OR</span> <span class="fn">pop</span>() != matching opener <span class="kw">THEN</span> <span class="kw">RETURN</span> false
+<span class="kw">RETURN</span> stack is empty</code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">class</span> <span class="ty">ArrayStack</span>&lt;<span class="ty">T</span>&gt; : <span class="ty">Iterable</span>&lt;<span class="ty">T</span>&gt; {
+    <span class="kw">private</span> <span class="kw">var</span> items = arrayOfNulls&lt;<span class="ty">Any</span>?&gt;(<span class="cn">2</span>)
+    <span class="kw">var</span> size = <span class="cn">0</span>
+        <span class="kw">private</span> set
+
+    <span class="kw">fun</span> <span class="fn">push</span>(item: <span class="ty">T</span>) {
+        <span class="kw">if</span> (size == items.size) items = items.<span class="fn">copyOf</span>(size * <span class="cn">2</span>)   <span class="cm">// grow: amortized O(1)</span>
+        items[size++] = item
+    }
+
+    <span class="kw">fun</span> <span class="fn">pop</span>(): <span class="ty">T</span> {
+        <span class="kw">if</span> (<span class="fn">isEmpty</span>()) <span class="kw">throw</span> <span class="ty">NoSuchElementException</span>(<span class="st">"stack is empty"</span>)
+        <span class="kw">val</span> item = <span class="fn">elementAt</span>(--size)
+        items[size] = <span class="kw">null</span>                     <span class="cm">// avoid "loitering": a stale reference is a memory leak</span>
+        <span class="kw">return</span> item
+    }
+
+    <span class="kw">fun</span> <span class="fn">peek</span>(): <span class="ty">T</span> = <span class="kw">if</span> (<span class="fn">isEmpty</span>()) <span class="kw">throw</span> <span class="ty">NoSuchElementException</span>(<span class="st">"stack is empty"</span>) <span class="kw">else</span> <span class="fn">elementAt</span>(size - <span class="cn">1</span>)
+    <span class="kw">fun</span> <span class="fn">isEmpty</span>() = size == <span class="cn">0</span>
+
+    <span class="an">@Suppress</span>(<span class="st">"UNCHECKED_CAST"</span>)
+    <span class="kw">private</span> <span class="kw">fun</span> <span class="fn">elementAt</span>(i: <span class="ty">Int</span>) = items[i] <span class="kw">as</span> <span class="ty">T</span>   <span class="cm">// erasure: the array is Any?, so cast on the way out</span>
+
+    <span class="kw">override</span> <span class="kw">fun</span> <span class="fn">iterator</span>() = <span class="kw">object</span> : <span class="ty">Iterator</span>&lt;<span class="ty">T</span>&gt; {  <span class="cm">// iterate top → bottom without popping</span>
+        <span class="kw">private</span> <span class="kw">var</span> i = size
+        <span class="kw">override</span> <span class="kw">fun</span> <span class="fn">hasNext</span>() = i &gt; <span class="cn">0</span>
+        <span class="kw">override</span> <span class="kw">fun</span> <span class="fn">next</span>() = <span class="fn">elementAt</span>(--i)
+    }
+}
+
+<span class="kw">fun</span> <span class="fn">isBalanced</span>(text: <span class="ty">String</span>): <span class="ty">Boolean</span> {
+    <span class="kw">val</span> pairs = <span class="fn">mapOf</span>(<span class="st">')'</span> to <span class="st">'('</span>, <span class="st">']'</span> to <span class="st">'['</span>, <span class="st">'}'</span> to <span class="st">'{'</span>)
+    <span class="kw">val</span> stack = <span class="ty">ArrayStack</span>&lt;<span class="ty">Char</span>&gt;()
+    <span class="kw">for</span> (ch <span class="kw">in</span> text) {
+        <span class="kw">when</span> (ch) {
+            <span class="st">'('</span>, <span class="st">'['</span>, <span class="st">'{'</span> -&gt; stack.<span class="fn">push</span>(ch)
+            <span class="st">')'</span>, <span class="st">']'</span>, <span class="st">'}'</span> -&gt; <span class="kw">if</span> (stack.<span class="fn">isEmpty</span>() || stack.<span class="fn">pop</span>() != pairs[ch]) <span class="kw">return</span> <span class="kw">false</span>
+        }
+    }
+    <span class="kw">return</span> stack.<span class="fn">isEmpty</span>()
+}
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="kw">val</span> stack = <span class="ty">ArrayStack</span>&lt;<span class="ty">Int</span>&gt;()
+    <span class="kw">for</span> (i <span class="kw">in</span> <span class="cn">1</span>..<span class="cn">5</span>) stack.<span class="fn">push</span>(i)              <span class="cm">// forces two resizes: 2 → 4 → 8</span>
+    <span class="fn">println</span>(<span class="st">"${stack.toList()} size=${stack.size} peek=${stack.peek()}"</span>)
+    <span class="fn">println</span>(<span class="st">"${stack.pop()} ${stack.pop()} → ${stack.toList()}"</span>)
+    <span class="fn">println</span>(<span class="fn">listOf</span>(<span class="st">"{[()]}"</span>, <span class="st">"([)]"</span>, <span class="st">"(("</span>, <span class="st">""</span>).<span class="fn">map</span>(::isBalanced))
+}</code></pre>
+<pre class="out"><code>[5, 4, 3, 2, 1] size=5 peek=5
+5 4 → [3, 2, 1]
+[true, false, false, true]</code></pre>
+<div class="note nblu"><strong>Time:</strong> push/pop amortized O(1) · <strong>Space:</strong> O(n)</div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li>Why does doubling (rather than adding a constant) give amortized O(1)? Total copy work is n + n/2 + n/4 + ... < 2n.</li>
+<li>Shrink to half when the stack is a quarter full, not half full, to avoid thrashing at the boundary.</li>
+<li>In real code, use <span class="ic">ArrayDeque</span> (not <span class="ic">java.util.Stack</span>, which is synchronized and extends <span class="ic">Vector</span>).</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--grnb);color:var(--grnl)">Q15</span><span class="qt">Min Stack: getMin() in O(1)</span><span class="dif med">Medium</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Design a stack that supports push, pop, top and getMin, all in O(1).</p>
+<p><strong>Approach.</strong> Keep a second stack of <strong>minimums</strong>. Push onto it when the new value is <strong>≤</strong> the current minimum (the <span class="ic">=</span> matters for duplicates), and pop from it when the value being popped equals the current minimum. Its top is always the minimum of everything below.</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="kw">CLASS</span> <span class="ty">MinStack</span>
+    values = stack; mins = stack              <span class="cm">// mins.top is always the minimum of values</span>
+
+    <span class="kw">FUNCTION</span> <span class="fn">push</span>(x)
+        values.<span class="fn">push</span>(x)
+        <span class="kw">IF</span> mins is empty <span class="kw">OR</span> x &lt;= mins.top <span class="kw">THEN</span> mins.<span class="fn">push</span>(x)   <span class="cm">// &lt;= so duplicates are tracked</span>
+
+    <span class="kw">FUNCTION</span> <span class="fn">pop</span>()
+        x = values.<span class="fn">pop</span>()
+        <span class="kw">IF</span> x == mins.top <span class="kw">THEN</span> mins.<span class="fn">pop</span>()      <span class="cm">// the current minimum is leaving</span>
+        <span class="kw">RETURN</span> x
+
+    <span class="kw">FUNCTION</span> <span class="fn">getMin</span>() → mins.top              <span class="cm">// O(1): no scanning</span></code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">class</span> <span class="ty">MinStack</span> {
+    <span class="kw">private</span> <span class="kw">val</span> values = <span class="ty">ArrayDeque</span>&lt;<span class="ty">Int</span>&gt;()
+    <span class="kw">private</span> <span class="kw">val</span> mins = <span class="ty">ArrayDeque</span>&lt;<span class="ty">Int</span>&gt;()
+
+    <span class="kw">fun</span> <span class="fn">push</span>(x: <span class="ty">Int</span>) {
+        values.<span class="fn">addLast</span>(x)
+        <span class="kw">if</span> (mins.<span class="fn">isEmpty</span>() || x &lt;= mins.<span class="fn">last</span>()) mins.<span class="fn">addLast</span>(x)
+    }
+
+    <span class="kw">fun</span> <span class="fn">pop</span>(): <span class="ty">Int</span> {
+        <span class="kw">val</span> x = values.<span class="fn">removeLast</span>()
+        <span class="kw">if</span> (x == mins.<span class="fn">last</span>()) mins.<span class="fn">removeLast</span>()
+        <span class="kw">return</span> x
+    }
+
+    <span class="kw">fun</span> <span class="fn">top</span>() = values.<span class="fn">last</span>()
+    <span class="kw">fun</span> <span class="fn">getMin</span>() = mins.<span class="fn">last</span>()
+}
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="kw">val</span> s = <span class="ty">MinStack</span>()
+    <span class="kw">for</span> (x <span class="kw">in</span> <span class="fn">listOf</span>(<span class="cn">5</span>, <span class="cn">3</span>, <span class="cn">7</span>, <span class="cn">3</span>, <span class="cn">1</span>)) {
+        s.<span class="fn">push</span>(x)
+        <span class="fn">println</span>(<span class="st">"push $x → min ${s.getMin()}"</span>)
+    }
+    <span class="fn">repeat</span>(<span class="cn">3</span>) {
+        <span class="kw">val</span> popped = s.<span class="fn">pop</span>()
+        <span class="fn">println</span>(<span class="st">"pop $popped → min ${s.getMin()}"</span>)
+    }
+}</code></pre>
+<pre class="out"><code>push 5 → min 5
+push 3 → min 3
+push 7 → min 3
+push 3 → min 3
+push 1 → min 1
+pop 1 → min 3
+pop 3 → min 3
+pop 7 → min 3</code></pre>
+<div class="note nblu"><strong>Time:</strong> O(1) for every operation · <strong>Space:</strong> O(n) worst case for the min stack</div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li>Without the <span class="ic">&lt;=</span>, pushing 3, 3 and popping one 3 would lose the minimum.</li>
+<li>Alternative: store pairs <span class="ic">(value, minSoFar)</span> in one stack. Simpler, but always uses 2n space.</li>
+<li>Max Stack with popMax() is much harder: it needs a TreeMap plus a doubly linked list.</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--ambb);color:var(--ambl)">Q16</span><span class="qt">Implement a Queue using two Stacks</span><span class="dif med">Medium</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Implement FIFO enqueue/dequeue using only stack operations (push, pop, peek, isEmpty).</p>
+<p><strong>Approach.</strong> Push new items onto an <strong>inbox</strong> stack. To dequeue, pop from an <strong>outbox</strong> stack. Only when the outbox is empty, move everything from the inbox into it. Reversing a stack turns LIFO into FIFO. Each element moves at most once, so the cost averages out to O(1).</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="kw">CLASS</span> <span class="ty">QueueFromStacks</span>
+    inbox = stack; outbox = stack
+
+    <span class="kw">FUNCTION</span> <span class="fn">enqueue</span>(x)
+        inbox.<span class="fn">push</span>(x)                         <span class="cm">// always O(1)</span>
+
+    <span class="kw">FUNCTION</span> <span class="fn">dequeue</span>()
+        <span class="kw">IF</span> outbox is empty <span class="kw">THEN</span>
+            <span class="kw">WHILE</span> inbox not empty             <span class="cm">// reversing a stack turns LIFO into FIFO</span>
+                outbox.<span class="fn">push</span>(inbox.<span class="fn">pop</span>())
+        <span class="kw">IF</span> outbox is empty <span class="kw">THEN</span> <span class="kw">THROW</span> <span class="st">"empty queue"</span>
+        <span class="kw">RETURN</span> outbox.<span class="fn">pop</span>()
+
+<span class="cm">// Each element is moved at most once → amortized O(1) per operation</span></code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">class</span> <span class="ty">QueueFromStacks</span>&lt;<span class="ty">T</span>&gt; {
+    <span class="kw">private</span> <span class="kw">val</span> inbox = <span class="ty">ArrayDeque</span>&lt;<span class="ty">T</span>&gt;()        <span class="cm">// used strictly as a stack: addLast / removeLast</span>
+    <span class="kw">private</span> <span class="kw">val</span> outbox = <span class="ty">ArrayDeque</span>&lt;<span class="ty">T</span>&gt;()
+
+    <span class="kw">fun</span> <span class="fn">enqueue</span>(x: <span class="ty">T</span>) = inbox.<span class="fn">addLast</span>(x)
+
+    <span class="kw">fun</span> <span class="fn">dequeue</span>(): <span class="ty">T</span> {
+        <span class="fn">shift</span>()
+        <span class="kw">if</span> (outbox.<span class="fn">isEmpty</span>()) <span class="kw">throw</span> <span class="ty">NoSuchElementException</span>(<span class="st">"queue is empty"</span>)
+        <span class="kw">return</span> outbox.<span class="fn">removeLast</span>()
+    }
+
+    <span class="kw">fun</span> <span class="fn">peek</span>(): <span class="ty">T</span> { <span class="fn">shift</span>(); <span class="kw">return</span> outbox.<span class="fn">last</span>() }
+    <span class="kw">val</span> size <span class="fn">get</span>() = inbox.size + outbox.size
+
+    <span class="kw">private</span> <span class="kw">fun</span> <span class="fn">shift</span>() {
+        <span class="kw">if</span> (outbox.<span class="fn">isEmpty</span>()) {
+            <span class="kw">while</span> (inbox.<span class="fn">isNotEmpty</span>()) outbox.<span class="fn">addLast</span>(inbox.<span class="fn">removeLast</span>())
+        }
+    }
+
+    <span class="kw">override</span> <span class="kw">fun</span> <span class="fn">toString</span>() = <span class="st">"in=$inbox out=$outbox"</span>
+}
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="kw">val</span> q = <span class="ty">QueueFromStacks</span>&lt;<span class="ty">String</span>&gt;()
+    q.<span class="fn">enqueue</span>(<span class="st">"a"</span>); q.<span class="fn">enqueue</span>(<span class="st">"b"</span>); q.<span class="fn">enqueue</span>(<span class="st">"c"</span>)
+    <span class="fn">println</span>(q)
+    <span class="fn">println</span>(q.<span class="fn">dequeue</span>())                       <span class="cm">// triggers the one-time transfer</span>
+    <span class="fn">println</span>(q)
+    q.<span class="fn">enqueue</span>(<span class="st">"d"</span>)                             <span class="cm">// new items wait in the inbox</span>
+    <span class="fn">println</span>(q)
+    <span class="fn">println</span>(<span class="ty">List</span>(<span class="cn">3</span>) { q.<span class="fn">dequeue</span>() })           <span class="cm">// FIFO order preserved: b, c, then d</span>
+}</code></pre>
+<pre class="out"><code>in=[a, b, c] out=[]
+a
+in=[] out=[c, b]
+in=[d] out=[c, b]
+[b, c, d]</code></pre>
+<div class="note nblu"><strong>Time:</strong> enqueue O(1); dequeue amortized O(1), O(n) worst · <strong>Space:</strong> O(n)</div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li>Why not move items back to the inbox after each dequeue? That makes every operation O(n).</li>
+<li>The reverse question, a stack from two queues, costs O(n) for either push or pop.</li>
+<li>In real code, <span class="ic">ArrayDeque</span> is a circular buffer that gives true O(1) at both ends.</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--redb);color:var(--redl)">Q17</span><span class="qt">Design an LRU Cache with O(1) get and put</span><span class="dif hard">Hard</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Implement <span class="ic">get(key)</span> and <span class="ic">put(key, value)</span> for a fixed-capacity cache that evicts the <strong>least recently used</strong> entry, both in O(1).</p>
+<p><strong>Approach.</strong> Two structures together: a <strong>HashMap</strong> for O(1) lookup of a node, and a <strong>doubly linked list</strong> ordered by recency for O(1) move-to-front and remove-from-tail. Sentinel head and tail nodes remove all null edge cases. Each node stores its own key so eviction can also remove it from the map.</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="kw">CLASS</span> <span class="ty">LRUCache</span>(capacity)
+    map = <span class="ty">HashMap</span>&lt;key, <span class="ty">Node</span>&gt;                  <span class="cm">// O(1) lookup</span>
+    list = doubly linked list                 <span class="cm">// order of use: head = most recent, tail = least recent</span>
+
+    <span class="kw">FUNCTION</span> <span class="fn">get</span>(key)
+        <span class="kw">IF</span> key <span class="kw">NOT</span> <span class="kw">IN</span> map <span class="kw">THEN</span> <span class="kw">RETURN</span> -<span class="cn">1</span>
+        node = map[key]
+        <span class="kw">MOVE</span> node <span class="kw">TO</span> head                     <span class="cm">// it was just used</span>
+        <span class="kw">RETURN</span> node.value
+
+    <span class="kw">FUNCTION</span> <span class="fn">put</span>(key, value)
+        <span class="kw">IF</span> key <span class="kw">IN</span> map <span class="kw">THEN</span>
+            update map[key].value; <span class="kw">MOVE</span> it <span class="kw">TO</span> head
+        <span class="kw">ELSE</span>
+            <span class="kw">IF</span> size == capacity <span class="kw">THEN</span>
+                <span class="kw">REMOVE</span> list.tail <span class="kw">FROM</span> list <span class="kw">AND</span> map   <span class="cm">// evict the least recently used</span>
+            node = new <span class="ty">Node</span>(key, value)
+            <span class="kw">ADD</span> node <span class="kw">AT</span> head; map[key] = node</code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">class</span> <span class="ty">LRUCache</span>(<span class="kw">private</span> <span class="kw">val</span> capacity: <span class="ty">Int</span>) {
+    <span class="kw">private</span> <span class="kw">class</span> <span class="ty">Node</span>(<span class="kw">val</span> key: <span class="ty">Int</span>, <span class="kw">var</span> value: <span class="ty">Int</span>) {
+        <span class="kw">var</span> prev: <span class="ty">Node</span>? = <span class="kw">null</span>
+        <span class="kw">var</span> next: <span class="ty">Node</span>? = <span class="kw">null</span>
+    }
+
+    <span class="kw">private</span> <span class="kw">val</span> map = <span class="ty">HashMap</span>&lt;<span class="ty">Int</span>, <span class="ty">Node</span>&gt;()
+    <span class="kw">private</span> <span class="kw">val</span> head = <span class="ty">Node</span>(<span class="cn">0</span>, <span class="cn">0</span>)              <span class="cm">// sentinels: no null checks at the ends</span>
+    <span class="kw">private</span> <span class="kw">val</span> tail = <span class="ty">Node</span>(<span class="cn">0</span>, <span class="cn">0</span>)
+
+    <span class="kw">init</span> { head.next = tail; tail.prev = head }
+
+    <span class="kw">fun</span> <span class="fn">get</span>(key: <span class="ty">Int</span>): <span class="ty">Int</span> {
+        <span class="kw">val</span> node = map[key] ?: <span class="kw">return</span> -<span class="cn">1</span>
+        <span class="fn">unlink</span>(node); <span class="fn">addFront</span>(node)
+        <span class="kw">return</span> node.value
+    }
+
+    <span class="kw">fun</span> <span class="fn">put</span>(key: <span class="ty">Int</span>, value: <span class="ty">Int</span>) {
+        map[key]?.let { it.value = value; <span class="fn">unlink</span>(it); <span class="fn">addFront</span>(it); <span class="kw">return</span> }
+        <span class="kw">if</span> (map.size == capacity) {
+            <span class="kw">val</span> lru = tail.prev!!
+            <span class="fn">unlink</span>(lru); map.<span class="fn">remove</span>(lru.key)   <span class="cm">// the node stores its key so we can remove it from the map</span>
+            <span class="fn">println</span>(<span class="st">"  evict ${lru.key}"</span>)
+        }
+        <span class="kw">val</span> node = <span class="ty">Node</span>(key, value)
+        <span class="fn">addFront</span>(node); map[key] = node
+    }
+
+    <span class="kw">private</span> <span class="kw">fun</span> <span class="fn">unlink</span>(n: <span class="ty">Node</span>) { n.prev!!.next = n.next; n.next!!.prev = n.prev }
+    <span class="kw">private</span> <span class="kw">fun</span> <span class="fn">addFront</span>(n: <span class="ty">Node</span>) { n.next = head.next; n.prev = head; head.next!!.prev = n; head.next = n }
+
+    <span class="kw">override</span> <span class="kw">fun</span> <span class="fn">toString</span>(): <span class="ty">String</span> {
+        <span class="kw">val</span> keys = mutableListOf&lt;<span class="ty">Int</span>&gt;()
+        <span class="kw">var</span> cur = head.next
+        <span class="kw">while</span> (cur !== tail) { keys += cur!!.key; cur = cur.next }
+        <span class="kw">return</span> <span class="st">"recent→old $keys"</span>
+    }
+}
+
+<span class="cm">// The library version: LinkedHashMap in access order + an eviction rule.</span>
+<span class="kw">class</span> <span class="ty">SimpleLru</span>&lt;<span class="ty">K</span>, <span class="ty">V</span>&gt;(<span class="kw">private</span> <span class="kw">val</span> capacity: <span class="ty">Int</span>) : <span class="ty">LinkedHashMap</span>&lt;<span class="ty">K</span>, <span class="ty">V</span>&gt;(<span class="cn">16</span>, <span class="cn">0.75f</span>, <span class="kw">true</span>) {
+    <span class="kw">override</span> <span class="kw">fun</span> <span class="fn">removeEldestEntry</span>(eldest: <span class="ty">MutableMap</span>.<span class="ty">MutableEntry</span>&lt;<span class="ty">K</span>, <span class="ty">V</span>&gt;?) = size &gt; capacity
+}
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="kw">val</span> cache = <span class="ty">LRUCache</span>(<span class="cn">2</span>)
+    cache.<span class="fn">put</span>(<span class="cn">1</span>, <span class="cn">1</span>); cache.<span class="fn">put</span>(<span class="cn">2</span>, <span class="cn">2</span>)
+    <span class="fn">println</span>(<span class="st">"get 1 = ${cache.get(1)}  $cache"</span>)
+    cache.<span class="fn">put</span>(<span class="cn">3</span>, <span class="cn">3</span>)                            <span class="cm">// 2 is least recently used</span>
+    <span class="fn">println</span>(<span class="st">"get 2 = ${cache.get(2)}"</span>)
+    cache.<span class="fn">put</span>(<span class="cn">4</span>, <span class="cn">4</span>)
+    <span class="fn">println</span>(<span class="st">"get 1 = ${cache.get(1)}, get 3 = ${cache.get(3)}, get 4 = ${cache.get(4)}  $cache"</span>)
+
+    <span class="kw">val</span> lru = <span class="ty">SimpleLru</span>&lt;<span class="ty">String</span>, <span class="ty">Int</span>&gt;(<span class="cn">2</span>)
+    lru[<span class="st">"a"</span>] = <span class="cn">1</span>; lru[<span class="st">"b"</span>] = <span class="cn">2</span>; lru[<span class="st">"a"</span>]; lru[<span class="st">"c"</span>] = <span class="cn">3</span>
+    <span class="fn">println</span>(lru.keys)
+}</code></pre>
+<pre class="out"><code>get 1 = 1  recent→old [1, 2]
+  evict 2
+get 2 = -1
+  evict 1
+get 1 = -1, get 3 = 3, get 4 = 4  recent→old [4, 3]
+[a, c]</code></pre>
+<div class="note nblu"><strong>Time:</strong> O(1) get and put · <strong>Space:</strong> O(capacity)</div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li><strong>Shortcut:</strong> <span class="ic">LinkedHashMap(cap, 0.75f, accessOrder = true)</span> plus <span class="ic">removeEldestEntry</span> does the same thing in three lines. Mention it, but expect to be asked for the manual version.</li>
+<li>Android has <span class="ic">android.util.LruCache</span>, which is size-aware (override <span class="ic">sizeOf</span>, e.g. for bitmap bytes) and thread-safe.</li>
+<li>Thread safety: wrap operations in a lock. <span class="ic">ConcurrentHashMap</span> alone is not enough because the list must change atomically with the map.</li>
+<li>LFU cache (evict the least *frequently* used): use a map of frequency → LinkedHashSet and track the minimum frequency.</li>
+</ul>
+</div>
+</details>
+
+<h2 id="patterns-in-code">Design Patterns in Code</h2>
+<p class="sub" style="margin-bottom:12px">Short "implement this pattern" exercises. Name the pattern, explain the problem it solves, then write the smallest correct version.</p>
+
+<details><summary><span class="qn" style="background:var(--blub);color:var(--blul)">Q18</span><span class="qt">Observer pattern: build a type-safe EventBus with subscribe/unsubscribe</span><span class="dif med">Medium</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Let components subscribe to event types and get notified when an event is published, without the publisher knowing who is listening.</p>
+<p><strong>Approach.</strong> Keep a map from <strong>event class → list of handlers</strong>. <span class="ic">subscribe</span> returns a <span class="ic">Subscription</span> handle used to unsubscribe. <span class="ic">publish</span> looks up handlers by the event's class and calls a <strong>snapshot copy</strong> of the list, so a handler can unsubscribe during dispatch without a <span class="ic">ConcurrentModificationException</span>. A <span class="ic">reified</span> overload gives the <span class="ic">bus.subscribe&lt;UserLoggedIn&gt; { }</span> call-site syntax.</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="kw">CLASS</span> <span class="ty">EventBus</span>
+    subscribers = <span class="ty">Map</span>&lt;<span class="ty">EventType</span>, <span class="ty">List</span>&lt;<span class="ty">Handler</span>&gt;&gt;
+
+    <span class="kw">FUNCTION</span> <span class="fn">subscribe</span>(type, handler)
+        subscribers[type].<span class="fn">add</span>(handler)
+        <span class="kw">RETURN</span> a function that removes this handler   <span class="cm">// caller MUST unsubscribe (e.g. in onDestroy)</span>
+
+    <span class="kw">FUNCTION</span> <span class="fn">publish</span>(event)
+        <span class="kw">FOR</span> <span class="kw">EACH</span> handler <span class="kw">IN</span> copy of subscribers[<span class="fn">typeOf</span>(event)]   <span class="cm">// copy: handlers may unsubscribe mid-loop</span>
+            <span class="fn">handler</span>(event)</code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">fun</span> <span class="kw">interface</span> <span class="ty">Subscription</span> { <span class="kw">fun</span> <span class="fn">cancel</span>() }
+
+<span class="kw">class</span> <span class="ty">EventBus</span> {
+    <span class="kw">private</span> <span class="kw">val</span> subscribers = mutableMapOf&lt;<span class="ty">Class</span>&lt;*&gt;, <span class="ty">MutableList</span>&lt;(<span class="ty">Any</span>) -&gt; <span class="ty">Unit</span>&gt;&gt;()
+
+    <span class="an">@Synchronized</span>
+    <span class="kw">fun</span> &lt;<span class="ty">T</span> : <span class="ty">Any</span>&gt; <span class="fn">subscribe</span>(type: <span class="ty">Class</span>&lt;<span class="ty">T</span>&gt;, handler: (<span class="ty">T</span>) -&gt; <span class="ty">Unit</span>): <span class="ty">Subscription</span> {
+        <span class="kw">val</span> wrapper: (<span class="ty">Any</span>) -&gt; <span class="ty">Unit</span> = { <span class="fn">handler</span>(type.<span class="fn">cast</span>(it)) }
+        subscribers.<span class="fn">getOrPut</span>(type) { <span class="fn">mutableListOf</span>() } += wrapper
+        <span class="kw">return</span> <span class="ty">Subscription</span> { <span class="fn">synchronized</span>(<span class="kw">this</span>) { subscribers[type]?.<span class="fn">remove</span>(wrapper) } }
+    }
+
+    <span class="kw">inline</span> <span class="kw">fun</span> &lt;<span class="kw">reified</span> <span class="ty">T</span> : <span class="ty">Any</span>&gt; <span class="fn">subscribe</span>(<span class="kw">noinline</span> handler: (<span class="ty">T</span>) -&gt; <span class="ty">Unit</span>) = <span class="fn">subscribe</span>(<span class="ty">T</span>::<span class="kw">class</span>.java, handler)
+
+    <span class="kw">fun</span> <span class="fn">publish</span>(event: <span class="ty">Any</span>) {
+        <span class="kw">val</span> handlers = <span class="fn">synchronized</span>(<span class="kw">this</span>) { subscribers[event.javaClass]?.<span class="fn">toList</span>().<span class="fn">orEmpty</span>() }
+        handlers.forEach { <span class="fn">it</span>(event) }        <span class="cm">// call outside the lock: handlers may publish too</span>
+    }
+}
+
+<span class="kw">data</span> <span class="kw">class</span> <span class="ty">UserLoggedIn</span>(<span class="kw">val</span> name: <span class="ty">String</span>)
+<span class="kw">data</span> <span class="kw">class</span> <span class="ty">CartUpdated</span>(<span class="kw">val</span> items: <span class="ty">Int</span>)
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="kw">val</span> bus = <span class="ty">EventBus</span>()
+    <span class="kw">val</span> analytics = bus.subscribe&lt;<span class="ty">UserLoggedIn</span>&gt; { <span class="fn">println</span>(<span class="st">"analytics: login ${it.name}"</span>) }
+    bus.subscribe&lt;<span class="ty">UserLoggedIn</span>&gt; { <span class="fn">println</span>(<span class="st">"ui: welcome ${it.name}"</span>) }
+    bus.subscribe&lt;<span class="ty">CartUpdated</span>&gt; { <span class="fn">println</span>(<span class="st">"badge: ${it.items} items"</span>) }
+
+    bus.<span class="fn">publish</span>(<span class="ty">UserLoggedIn</span>(<span class="st">"ann"</span>))
+    bus.<span class="fn">publish</span>(<span class="ty">CartUpdated</span>(<span class="cn">3</span>))
+    analytics.<span class="fn">cancel</span>()                         <span class="cm">// forget this in Android and the listener leaks</span>
+    bus.<span class="fn">publish</span>(<span class="ty">UserLoggedIn</span>(<span class="st">"bob"</span>))
+    bus.<span class="fn">publish</span>(<span class="st">"nobody listens to String"</span>)    <span class="cm">// no subscribers → nothing happens</span>
+}</code></pre>
+<pre class="out"><code>analytics: login ann
+ui: welcome ann
+badge: 3 items
+ui: welcome bob</code></pre>
+<div class="note nblu"><strong>Time:</strong> publish O(subscribers of that type) · <strong>Space:</strong> O(total subscriptions)</div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li><strong>Leaks:</strong> a handler capturing an Activity keeps it alive until it is unsubscribed. Tie subscriptions to a lifecycle, or hold weak references.</li>
+<li>Handlers run on the publisher's thread. Real buses offer a delivery thread (e.g. post to the main thread).</li>
+<li>In modern Android code this is usually a <span class="ic">MutableSharedFlow&lt;Event&gt;</span> collected with <span class="ic">repeatOnLifecycle</span>, which gives the same pattern with lifecycle awareness and backpressure.</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--purb);color:var(--purl)">Q19</span><span class="qt">Strategy pattern: pluggable payment methods and discount rules</span><span class="dif med">Medium</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Checkout must support card, UPI and wallet payments, plus optional discount rules, and adding a new payment type must not require editing Checkout.</p>
+<p><strong>Approach.</strong> Define a <strong><span class="ic">PaymentMethod</span> interface</strong>, with one class per strategy, and <strong>inject</strong> the strategy into <span class="ic">Checkout</span> instead of branching on a type with <span class="ic">if/when</span>. Simple strategies don't need a class at all: a discount rule is just a function <span class="ic">(Long) -&gt; Long</span>. A <strong>sealed</strong> result type forces callers to handle both success and decline.</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="kw">INTERFACE</span> <span class="ty">PaymentMethod</span>
+    <span class="kw">FUNCTION</span> <span class="fn">pay</span>(amount) → <span class="ty">Result</span>            <span class="cm">// each strategy implements the same contract</span>
+
+<span class="kw">CLASS</span> <span class="ty">CardPayment</span>   <span class="kw">IMPLEMENTS</span> <span class="ty">PaymentMethod</span>    adds a <span class="cn">2</span>% fee
+<span class="kw">CLASS</span> <span class="ty">UpiPayment</span>    <span class="kw">IMPLEMENTS</span> <span class="ty">PaymentMethod</span>    no fee
+<span class="kw">CLASS</span> <span class="ty">WalletPayment</span> <span class="kw">IMPLEMENTS</span> <span class="ty">PaymentMethod</span>    fails if the balance is too low
+
+<span class="kw">CLASS</span> <span class="ty">Checkout</span>(discountRule)                  <span class="cm">// the strategy is INJECTED, not chosen with if/else</span>
+    <span class="kw">FUNCTION</span> <span class="fn">checkout</span>(total, method)
+        <span class="kw">RETURN</span> method.<span class="fn">pay</span>(<span class="fn">discountRule</span>(total))
+
+<span class="cm">// Adding a new payment type = a new class. Checkout never changes (Open/Closed principle).</span></code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">sealed</span> <span class="kw">interface</span> <span class="ty">PaymentResult</span> {
+    <span class="kw">data</span> <span class="kw">class</span> <span class="ty">Success</span>(<span class="kw">val</span> charged: <span class="ty">Long</span>, <span class="kw">val</span> via: <span class="ty">String</span>) : <span class="ty">PaymentResult</span>
+    <span class="kw">data</span> <span class="kw">class</span> <span class="ty">Declined</span>(<span class="kw">val</span> reason: <span class="ty">String</span>) : <span class="ty">PaymentResult</span>
+}
+
+<span class="kw">interface</span> <span class="ty">PaymentMethod</span> {
+    <span class="kw">fun</span> <span class="fn">pay</span>(amountCents: <span class="ty">Long</span>): <span class="ty">PaymentResult</span>
+}
+
+<span class="kw">class</span> <span class="ty">CardPayment</span>(<span class="kw">private</span> <span class="kw">val</span> last4: <span class="ty">String</span>) : <span class="ty">PaymentMethod</span> {
+    <span class="kw">override</span> <span class="kw">fun</span> <span class="fn">pay</span>(amountCents: <span class="ty">Long</span>) = <span class="ty">PaymentResult</span>.<span class="ty">Success</span>(amountCents + amountCents * <span class="cn">2</span> / <span class="cn">100</span>, <span class="st">"card *$last4"</span>)
+}
+
+<span class="kw">class</span> <span class="ty">UpiPayment</span>(<span class="kw">private</span> <span class="kw">val</span> upiId: <span class="ty">String</span>) : <span class="ty">PaymentMethod</span> {
+    <span class="kw">override</span> <span class="kw">fun</span> <span class="fn">pay</span>(amountCents: <span class="ty">Long</span>) = <span class="ty">PaymentResult</span>.<span class="ty">Success</span>(amountCents, <span class="st">"upi $upiId"</span>)
+}
+
+<span class="kw">class</span> <span class="ty">WalletPayment</span>(<span class="kw">private</span> <span class="kw">var</span> balanceCents: <span class="ty">Long</span>) : <span class="ty">PaymentMethod</span> {
+    <span class="kw">override</span> <span class="kw">fun</span> <span class="fn">pay</span>(amountCents: <span class="ty">Long</span>): <span class="ty">PaymentResult</span> {
+        <span class="kw">if</span> (amountCents &gt; balanceCents) <span class="kw">return</span> <span class="ty">PaymentResult</span>.<span class="ty">Declined</span>(<span class="st">"wallet has $balanceCents"</span>)
+        balanceCents -= amountCents
+        <span class="kw">return</span> <span class="ty">PaymentResult</span>.<span class="ty">Success</span>(amountCents, <span class="st">"wallet"</span>)
+    }
+}
+
+<span class="cm">// Strategies can also be plain functions: a discount rule is just (Long) -&gt; Long.</span>
+<span class="kw">val</span> noDiscount: (<span class="ty">Long</span>) -&gt; <span class="ty">Long</span> = { it }
+<span class="kw">val</span> tenPercentOff: (<span class="ty">Long</span>) -&gt; <span class="ty">Long</span> = { it - it / <span class="cn">10</span> }
+
+<span class="kw">class</span> <span class="ty">Checkout</span>(<span class="kw">private</span> <span class="kw">val</span> discount: (<span class="ty">Long</span>) -&gt; <span class="ty">Long</span> = noDiscount) {
+    <span class="kw">fun</span> <span class="fn">checkout</span>(totalCents: <span class="ty">Long</span>, method: <span class="ty">PaymentMethod</span>): <span class="ty">String</span> =
+        <span class="kw">when</span> (<span class="kw">val</span> result = method.<span class="fn">pay</span>(<span class="fn">discount</span>(totalCents))) {     <span class="cm">// exhaustive over the sealed result</span>
+            <span class="kw">is</span> <span class="ty">PaymentResult</span>.<span class="ty">Success</span> -&gt; <span class="st">"charged ${result.charged} via ${result.via}"</span>
+            <span class="kw">is</span> <span class="ty">PaymentResult</span>.<span class="ty">Declined</span> -&gt; <span class="st">"declined: ${result.reason}"</span>
+        }
+}
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="kw">val</span> regular = <span class="ty">Checkout</span>()
+    <span class="kw">val</span> sale = <span class="ty">Checkout</span>(tenPercentOff)
+    <span class="fn">println</span>(regular.<span class="fn">checkout</span>(<span class="cn">10_000</span>, <span class="ty">CardPayment</span>(<span class="st">"4242"</span>)))
+    <span class="fn">println</span>(sale.<span class="fn">checkout</span>(<span class="cn">10_000</span>, <span class="ty">UpiPayment</span>(<span class="st">"ann@bank"</span>)))
+    <span class="kw">val</span> wallet = <span class="ty">WalletPayment</span>(<span class="cn">5_000</span>)
+    <span class="fn">println</span>(sale.<span class="fn">checkout</span>(<span class="cn">5_000</span>, wallet))
+    <span class="fn">println</span>(sale.<span class="fn">checkout</span>(<span class="cn">5_000</span>, wallet))
+}</code></pre>
+<pre class="out"><code>charged 10200 via card *4242
+charged 9000 via upi ann@bank
+charged 4500 via wallet
+declined: wallet has 500</code></pre>
+<div class="note nblu"><strong>Time:</strong> O(1) · <strong>Space:</strong> O(1)</div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li>Strategy vs State: a Strategy is chosen by the client; a State object changes itself as the context changes.</li>
+<li>Strategy is how DI and testing work: pass a <span class="ic">FakePaymentMethod</span> into <span class="ic">Checkout</span> in unit tests.</li>
+<li><span class="ic">Comparator</span> is the Strategy pattern from the standard library.</li>
+</ul>
+</div>
+</details>
+
+<details><summary><span class="qn" style="background:var(--cyab);color:var(--cyal)">Q20</span><span class="qt">Design a rate limiter class (token bucket)</span><span class="dif hard">Hard</span></summary>
+<div class="ans">
+<p><strong>Problem.</strong> Allow at most N requests per second with short bursts allowed, e.g. to throttle API calls or button taps. <span class="ic">tryAcquire()</span> returns whether this call may proceed.</p>
+<p><strong>Approach.</strong> A bucket holds up to <span class="ic">capacity</span> tokens and refills at <span class="ic">refillPerSecond</span>. Each request spends one token. <strong>Refill lazily</strong>: on every call, add <span class="ic">elapsed × rate</span> tokens, capped at capacity. No background timer is needed. Inject a <strong>Clock</strong> so tests can move time forward deterministically instead of sleeping.</p>
+<p class="lbl">Pseudocode</p>
+<pre class="pseudo"><code><span class="kw">CLASS</span> <span class="ty">TokenBucket</span>(capacity, refillPerSecond, clock)
+    tokens = capacity; lastTime = clock.<span class="fn">now</span>()
+
+    <span class="kw">FUNCTION</span> <span class="fn">tryAcquire</span>()      <span class="kw">SYNCHRONIZED</span>
+        now = clock.<span class="fn">now</span>()
+        tokens = <span class="kw">MIN</span>(capacity, tokens + (now - lastTime) * refillPerSecond)   <span class="cm">// lazy refill: no timer thread</span>
+        lastTime = now
+        <span class="kw">IF</span> tokens &gt;= <span class="cn">1</span> <span class="kw">THEN</span>
+            tokens = tokens - <span class="cn">1</span>; <span class="kw">RETURN</span> true   <span class="cm">// request allowed</span>
+        <span class="kw">RETURN</span> false                           <span class="cm">// over the limit → reject or retry later</span>
+
+<span class="cm">// capacity = the allowed burst size, refillPerSecond = the steady-state rate</span></code></pre>
+<p class="lbl">Kotlin</p>
+<pre><code><span class="kw">fun</span> <span class="kw">interface</span> <span class="ty">Clock</span> { <span class="kw">fun</span> <span class="fn">nanos</span>(): <span class="ty">Long</span> }
+
+<span class="kw">class</span> <span class="ty">TokenBucket</span>(
+    <span class="kw">private</span> <span class="kw">val</span> capacity: <span class="ty">Int</span>,
+    <span class="kw">private</span> <span class="kw">val</span> refillPerSecond: <span class="ty">Double</span>,
+    <span class="kw">private</span> <span class="kw">val</span> clock: <span class="ty">Clock</span> = <span class="ty">Clock</span>(<span class="ty">System</span>::nanoTime),   <span class="cm">// injectable → deterministic tests</span>
+) {
+    <span class="kw">private</span> <span class="kw">var</span> tokens = capacity.<span class="fn">toDouble</span>()
+    <span class="kw">private</span> <span class="kw">var</span> last = clock.<span class="fn">nanos</span>()
+
+    <span class="an">@Synchronized</span>
+    <span class="kw">fun</span> <span class="fn">tryAcquire</span>(): <span class="ty">Boolean</span> {
+        <span class="kw">val</span> now = clock.<span class="fn">nanos</span>()
+        tokens = <span class="fn">minOf</span>(capacity.<span class="fn">toDouble</span>(), tokens + (now - last) / <span class="cn">1e9</span> * refillPerSecond)
+        last = now
+        <span class="kw">if</span> (tokens &lt; <span class="cn">1</span>) <span class="kw">return</span> <span class="kw">false</span>
+        tokens -= <span class="cn">1</span>
+        <span class="kw">return</span> <span class="kw">true</span>
+    }
+}
+
+<span class="kw">fun</span> <span class="fn">main</span>() {
+    <span class="kw">var</span> fakeNow = <span class="cn">0L</span>
+    <span class="kw">val</span> limiter = <span class="ty">TokenBucket</span>(capacity = <span class="cn">3</span>, refillPerSecond = <span class="cn">1.0</span>, clock = { fakeNow })
+
+    <span class="fn">println</span>(<span class="st">"t=0s   "</span> + <span class="ty">List</span>(<span class="cn">5</span>) { limiter.<span class="fn">tryAcquire</span>() })   <span class="cm">// burst: 3 allowed, then rejected</span>
+    fakeNow += <span class="cn">500_000_000</span>
+    <span class="fn">println</span>(<span class="st">"t=0.5s "</span> + <span class="ty">List</span>(<span class="cn">1</span>) { limiter.<span class="fn">tryAcquire</span>() })   <span class="cm">// only half a token so far</span>
+    fakeNow += <span class="cn">1_500_000_000</span>
+    <span class="fn">println</span>(<span class="st">"t=2s   "</span> + <span class="ty">List</span>(<span class="cn">3</span>) { limiter.<span class="fn">tryAcquire</span>() })   <span class="cm">// 2 tokens refilled</span>
+    fakeNow += <span class="cn">60_000_000_000</span>
+    <span class="fn">println</span>(<span class="st">"t=62s  "</span> + <span class="ty">List</span>(<span class="cn">4</span>) { limiter.<span class="fn">tryAcquire</span>() })   <span class="cm">// capped at capacity, not 60</span>
+}</code></pre>
+<pre class="out"><code>t=0s   [true, true, true, false, false]
+t=0.5s [false]
+t=2s   [true, true, false]
+t=62s  [true, true, true, false]</code></pre>
+<div class="note nblu"><strong>Time:</strong> O(1) per call · <strong>Space:</strong> O(1)</div>
+<p><strong>Follow-ups interviewers ask:</strong></p>
+<ul>
+<li><strong>Fixed window</strong> counters allow 2× bursts at window edges; <strong>sliding log</strong> is exact but O(requests) memory; <strong>token bucket</strong> is O(1) and allows controlled bursts.</li>
+<li>Use <span class="ic">System.nanoTime()</span> (monotonic), not <span class="ic">currentTimeMillis()</span>, which can jump when the wall clock changes.</li>
+<li>Per-user limits: a <span class="ic">ConcurrentHashMap&lt;UserId, TokenBucket&gt;</span> with eviction of idle buckets.</li>
+<li>On the client side, OkHttp interceptors and Flow <span class="ic">debounce</span>/<span class="ic">throttle</span> operators solve similar problems.</li>
+</ul>
+</div>
+</details>
+
+</main>
+</body>
+</html>
